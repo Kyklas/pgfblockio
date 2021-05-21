@@ -1,0 +1,654 @@
+\documentclass[10pt]{standalone}
+
+\usepackage{tikz}
+\usepackage{pgfblockio}
+
+\usepackage[margin=1mm]{geometry} % no margins
+\widowpenalty=0\relax % no empty lines at the end of page
+\clubpenalty=0\relax % no empty lines at the end of page
+\pagestyle{empty} % no headers or footers
+
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+
+\begin{document}
+
+%
+% ------- Test Block AT
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref) at (1,1);
+\filldraw (ref) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\begin{blockio}[at=(ref)]{Block AT}
+\end{blockio}
+\end{tikzpicture}
+
+%
+% ------- Test Block size and text anchor
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[min width=2cm,
+				min height=3cm,
+				name=blk,
+				text anchor=north east]{size 2 x 3}
+\end{blockio}
+
+\node[below=5pt of blk-text,font=\tiny,align=center] {text anchor\\north east};
+\end{tikzpicture}
+
+%
+% ------- Test Block inner sep
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[inner sep=0pt]{}
+\end{blockio}
+\node[below=5pt of blk1,font=\tiny] {inner sep=0pt};
+\end{tikzpicture}
+
+
+%
+% ------- Test Block fit
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref1) at (1,1);
+\coordinate (ref2) at (-1,0);
+\filldraw (ref1) circle[radius=1pt] node[below,font=\tiny] {ref1};
+\filldraw (ref2) circle[radius=1pt] node[above,font=\tiny] {ref2};
+
+\begin{blockio}[fit=(ref1)(ref2),text style={align=center,font=\tiny}]{Block Fit\\ Text Style \\ Center \& Tiny }
+\end{blockio}
+\end{tikzpicture}
+
+%
+% ------- Test Block name
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[name=BLK_CN,
+				text style={align=center},
+				anchor=south west]
+	{Custom Name\\BLK\_CN\\anchored south west}
+\end{blockio}
+\node[below=5pt of BLK_CN,font=\tiny] {BLK\_CN};
+\end{tikzpicture}
+
+%
+% ------- Test block iopin in sep
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[in sep=1pt]{\tiny in sep=0pt}
+	\iopin[north,in,name=iopin-n]{N}
+	\iopin[east,out]{E}
+\end{blockio}
+\end{tikzpicture}
+
+%
+% ------- Test block iopin out sep and IOPin name
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[out sep=1pt]{\tiny out sep=1pt}
+	\iopin[west,in,name=IOPW]{W}
+	\iopin[south,out]{\tiny S}
+	\iopin[east,in]{E-exp}
+	\iopin[east,out]{E-out}
+\end{blockio}
+
+\node[above left=0pt of IOPW-text,inner sep=0,font=\tiny,align=center] {IO Pin\\'IOPW'};
+\end{tikzpicture}
+
+%
+% ------- Test iopin shape and path style, iopin text style
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\tikzset{mystyle/.style={
+       blue,thick,
+       append after command={ node[fill=blue,dart,font=\tiny,inner sep=0.5mm,outer sep=0,minimum size=0mm,rotate=\blkiopinrotate] at (\tikzlastnode.out) {} }
+}}
+
+\begin{blockio}[shape=diamond]{\tiny Shape}
+	\iopin[west,in,style={iopin}]{iopin1}
+	\iopin[west,out,style={iopin}]{iopin2}
+	\iopin[south,in,style={ioduplex}]{S1}
+	\iopin[south,out,style={ioduplex},text style={blue,draw}]{S2}
+	\iopin[east,in,style={ioline}]{E1}
+	\iopin[east,out,style={ioline,mystyle}]{E2}
+
+	\iopin[north,out,style={draw=none,
+							append after command={						(\blkiopinname.in) to[bend left] (\tikzlastnode.out) node {\tikzlastnode -\blkiopinrotate - \blkiopinanchor} node[draw] at (\blkiopinname.symbol) {}
+									}}]
+							{N1}
+\end{blockio}
+\end{tikzpicture}
+
+%
+% ------------- Block All IOPin
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[ min size=4cm,text style={align=center}]
+				{Block\\
+				All IOPin\\
+				\small [north,south][left,center,right]\\
+				\small [east, west][up,center,down] }
+	\iopin[north left,in]{NL-i}
+	\iopin[north left,out]{NL-o}
+	\iopin[north center,in]{NC-i}
+	\iopin[north center,out]{NC-o}
+	\iopin[north right,in]{NR-i}
+	\iopin[north right,out]{NR-o}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east up,out]{EU-o}
+	\iopin[east center,in]{EC-i}
+	\iopin[east center,out]{EC-o}
+	\iopin[east down,in]{ED-i}
+	\iopin[east down,out]{ED-o}
+	
+	\iopin[west up,in]{WU-i}
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,in]{WC-i}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,in]{WD-i}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,in]{SL-i}
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,in]{SC-i}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,in]{SR-i}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+\end{tikzpicture}
+
+
+%
+% ---------------- Block anchors
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[text style={align=center},block style={draw,gray},shape=diamond,min size=3cm,name=s]{}
+	\iopin[north right,in]{NR-In}
+	\iopin[east down,out]{ED-Out}
+	\iopin[west up,in]{WU-In}
+	\iopin[south left,out]{SL-Out}
+\end{blockio}
+
+ 	\foreach \anchor/\placement in
+ 			{north west/above left, north/above, north east/above right,
+ 			west/left, center/above, east/right,
+ 			south west/below left, south/below, south east/below right,
+ 			 20/right, 130/above}
+ 		\draw [shift=(s.\anchor)] plot [mark=*] coordinates{(0, 0)}
+ 			node [\placement] {\scriptsize\texttt{(s.\anchor)}};
+ 	\foreach \anchor/\placement in
+ 			 {north west/above left, north/above, north east/above right,
+ 			west/left, center/below, east/right,
+ 			south west/below left, south/below, south east/below right}
+ 		\draw [color=red,shift=(s.block \anchor)] plot [mark=x] coordinates{(0, 0)}
+ 			node [\placement] {\scriptsize\texttt{(s.block \anchor)}};
+
+\end{tikzpicture}
+
+%
+% ---------------- IOPin anchors
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[text style={align=center},min height=3cm,name=s,every io space = 4mm,in sep=2cm,out sep=2cm]{IOPin\\Anchor}
+	\iopin[east up,out]{Eo}
+	\iopin[east down,in,style={opacity=0.3},text style={minimum width=2cm,minimum height=5mm,text opacity=.3}]{Ei}
+\end{blockio}
+
+ 	\foreach \anchor/\placement in
+ 			{north west/above left, north east/above right,
+ 			south west/below left, south east/below right}
+ 		\draw [shift=(Eo.\anchor)] plot [mark=x] coordinates{(0, 0)}
+ 			node [\placement] {\tiny\texttt{(Eo.\anchor)}};
+ 	\foreach \anchor/\placement in
+ 			 {in/left, out/right,symbol in/above left,symbol out/above right,symbol/below}
+ 		\draw [color=red,shift=(Eo.\anchor)] plot [mark=x] coordinates{(0, 0)}
+ 			node [\placement] {\tiny\texttt{(Eo.\anchor)}};
+
+ 	\foreach \anchor/\placement in
+ 			{north west/above left, north/above, north east/above right,
+ 			west/left, center/above, east/right,
+ 			south west/below left, south/below, south east/below right,
+ 			 10/right}
+ 		\draw [shift=(Ei-text.\anchor)] plot [mark=x] coordinates{(0, 0)}
+ 			node [\placement] {\tiny\texttt{(Ei-text.\anchor)}};
+
+\end{tikzpicture}
+
+%
+% IO Pin standalone
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref1) at (1,1);
+\filldraw (ref1) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\coordinate (ref2) at (-1,-1);
+\filldraw (ref2) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\iopin[above,at=(ref1)]{above};
+\iopin[right,at=(ref1)]{right};
+\iopin[left,at=(ref1)]{left};
+\iopin[below,at=(ref1)]{below};
+
+\iopin[out,above,at=(ref2)]{above};
+\iopin[out,right,at=(ref2)]{right};
+\iopin[out,left,at=(ref2)]{left};
+\iopin[out,below,at=(ref2)]{below};
+
+\end{tikzpicture}
+
+%
+% IO Pin standalone - long text and lines
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref) at (-1,-1);
+\filldraw (ref) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\iopin[out,right,at=(ref)]{IOPin\\With Long Text\\And lines};
+
+\end{tikzpicture}
+
+%
+% IO Pin standalone - growth
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref) at (0,0);
+\filldraw (ref) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\iopin[in,right,at=(ref),text style={font=\tiny}]{Growth \\@ io};
+\iopin[out,growth=start,left,at=(ref),text style={font=\tiny}]{Growth \\@ start};
+\iopin[out,growth=end,left,at=(ref),text style={font=\tiny}]{Growth \\@ end};
+
+\iopin[in,right,at=(ref),gshift=-1cm,text style={font=\tiny}]{Growth \\@ io\\ \& -1cm shift};
+
+\end{tikzpicture}
+
+%
+% IO Pin standalone - growth
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref) at (0,0);
+\filldraw (ref) circle[radius=1pt] node[below,font=\tiny] {ref};
+
+\iopin[in,above,at=(ref),text style={font=\tiny}]{Growth \\@ io};
+\iopin[out,growth=start,below,at=(ref),text style={font=\tiny}]{Growth \\@ start};
+\iopin[out,growth=end,below,at=(ref),text style={font=\tiny}]{Growth \\@ end};
+
+\iopin[in,above,at=(ref),gshift=-1cm,text style={font=\tiny}]{Growth \\@ io\\ \& -1cm shift};
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+\coordinate (ref) at (0.5,0.5);
+\filldraw (ref) circle[radius=1pt] node[below,font=\tiny,text opacity=0.3] {ref};
+
+\begin{blockio}[text style={align=center,draw,blue},
+				at=(ref),
+				inner sep=0pt,
+				name=BS,
+				shape=ellipse
+				%shape={diamond}
+				%shape={regular polygon,regular polygon sides=5,shape border rotate=15}
+				%shape={isosceles triangle,isosceles triangle stretches,shape border rotate=0}
+				%shape={shape=kite,shape border rotate=90}
+				%shape={ellipse}
+				]{Block Shape}
+				
+				
+	\iopin[north left,in]{NL-i}
+	\iopin[north left,out]{NL-o}
+	\iopin[north center,in]{NC-i}
+	\iopin[north center,out]{NC-o}
+	\iopin[north right,in]{NR-i}
+	\iopin[north right,out]{NR-o}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east up,out]{EU-o}
+%	\iopin[east center,out]{EC-o}
+%	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	\iopin[east down,out]{ED-o}
+	
+	\iopin[west up,in]{WU-i}
+	\iopin[west up,out]{WU-o}
+%	\iopin[west center,in]{WC-i}
+%	\iopin[west center,out]{WC-o}
+	\iopin[west down,in]{WD-i}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,in]{SL-i}
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,in]{SC-i}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,in]{SR-i}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+%\pgfpointshapeborder
+\draw[yellow,thick] (BS.south east) -- (BS);
+\draw[yellow,thick] (BS.north east) -- (BS-shape);
+
+\draw[yellow,thick] (BS.south west) -- (BS);
+
+%\filldraw (BS.center) circle[radius=1pt];
+%\filldraw (BS-shape.center) circle[radius=1pt];
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \n [count=\i] in {RP3N,RP3E,RP3W,RP3S,
+							RP5N,RP5E,RP5W,RP5S,
+							RP7N,RP7E,RP7W,RP7S,
+							RP6H,RP6V,RP8}
+	{
+		\pgfmathparse{mod(\i-1,4)}
+		\edef\iy{\pgfmathresult}
+		\pgfmathparse{(\i-\iy-1)/4}
+		\edef\ix{\pgfmathresult}
+		\begin{blockio}[block style={draw,dashed,gray},shape=\n,at={(\ix*2.5cm-4cm,\iy*2.5cm-4cm)},text style={font=\tiny},name=\n]{\n}
+		\end{blockio}
+		\draw [shift=(\n-shape.corner 1)] plot [mark=x] coordinates{(0, 0)};
+	}
+
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+
+\foreach \n [count=\i] in {rectangle,diamond,ellipse}
+	{
+		\pgfmathparse{mod(\i-1,4)}
+		\edef\iy{\pgfmathresult}
+		\pgfmathparse{(\i-\iy-1)/4}
+		\edef\ix{\pgfmathresult}
+		\begin{blockio}[block style={draw,dashed,gray},shape=\n,at={(\ix*2.5cm,\iy*2.5cm)},text style={font=\tiny},name=\n]{\n}
+		\end{blockio}
+	}
+
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+
+\begin{blockio}[block style={draw,dashed,gray},shape=RP5E,text style={font=\tiny},name=B]{1-RP5E}
+	\iopin[north left,in]{NL-i}
+	\iopin[north left,out]{NL-o}
+	\iopin[north center,in]{NC-i}
+	\iopin[north center,out]{NC-o}
+	\iopin[north right,in]{NR-i}
+	\iopin[north right,out]{NR-o}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east up,out]{EU-o}
+	
+	\iopin[west up,in]{WU-i}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,in]{SL-i}
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,in]{SC-i}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,in]{SR-i}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\begin{blockio}[block style={draw,dashed,gray},shape=RP5E,text style={font=\tiny},anchor=south west,at=(B.north west)]{2-RP5E}
+	\iopin[north left,in]{NL-i}
+	\iopin[north left,out]{NL-o}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east up,out]{EU-o}
+	\iopin[east center,out]{EC-o}
+	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	\iopin[east down,out]{ED-o}
+	
+	\iopin[west up,in]{WU-i}
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,in]{WC-i}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,in]{WD-i}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,in]{SL-i}
+
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+\end{tikzpicture}
+
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.2,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \i in {0,...,4} {
+	\filldraw (-0.5cm,-0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]below left:\i-A}] (\i-A) {} ;
+	\filldraw (0.5cm,0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:\i-B}] (\i-B) {} ;
+}
+
+\linkio{0-A}{0-B}
+
+\iopin[at=(1-A),below,in]{P1}
+\linkio{P1}{1-B}
+
+\iopin[at=(2-B),above,out]{P2}
+\linkio{2-A}{P2}
+
+\iopin[at=(3-B),right,out]{P3}
+\linkio{3-A}{P3}
+
+\iopin[at=(4-A),left,in]{P4}
+\linkio{P4}{4-B}
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.2,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \i in {0,...,4} {
+	\filldraw (-0.5cm,-0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]below left:\i-A}] (\i-A) {} ;
+	\filldraw (0.5cm,0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:\i-B}] (\i-B) {} ;
+}
+
+\iopin[at=(0-A),left,in]{P0i}
+\iopin[at=(0-B),right,out]{P0o}
+\linkio{P0i}{P0o}
+
+\iopin[at=(1-A),below,in]{P1i}
+\iopin[at=(1-B),above,out]{P1o}
+\linkio{P1i}{P1o}
+
+\iopin[at=(2-A),left,in]{P2i}
+\iopin[at=(2-B),right,out]{P2o}
+\filldraw ($(2-A)+(3mm,3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:byref}] (byref) {} ;
+\linkio[by=(byref)]{P2i}{P2o}
+
+
+\filldraw ($(3-A)+(3mm,3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:byref}] (byref) {} ;
+\linkio[by=(byref),V]{3-A}{3-B}
+
+\iopin[at=(4-A),left,in]{P4i}
+\iopin[at=(4-B),above,out]{P4o}
+\filldraw ($(4-A)+(3mm,3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:byref}] (byref) {} ;
+\linkio[by=(byref)]{P4i}{P4o}
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.2,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \i in {0,...,4} {
+	\filldraw (-0.5cm,-0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]below left:\i-A}] (\i-A) {} ;
+	\filldraw (0.5cm,0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:\i-B}] (\i-B) {} ;
+}
+
+\iopin[at=(0-A),left,in]{P0i}
+\iopin[at=(0-B),right,out]{P0o}
+\filldraw ($(0-A)+(3mm,-3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:viaref}] (viaref) {} ;
+\linkio[via=(viaref)]{P0i}{P0o}
+
+\iopin[at=(1-A),below,in]{P1i}
+\iopin[at=(1-B),above,out]{P1o}
+\filldraw ($(1-A)+(-3mm,3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:viaref}] (viaref) {} ;
+\linkio[via=(viaref)]{P1i}{P1o}
+
+\iopin[at=(2-A),left,in]{P2i}
+\iopin[at=(2-B),above,out]{P2o}
+\filldraw ($(2-A)+(3mm,-3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:viaref}] (viaref) {} ;
+\linkio[via=(viaref)]{P2i}{P2o}
+
+\filldraw ($(3-A)+(-3mm,3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:viaref}] (viaref) {} ;
+\linkio[via=(viaref),V]{3-A}{3-B}
+
+\filldraw ($(4-A)+(-3mm,-3mm)$) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:viaref}] (viaref) {} ;
+\linkio[via=(viaref),H]{4-A}{4-B}
+
+\end{tikzpicture}
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.2,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \i in {0,...,4} {
+	\filldraw (-0.5cm,-0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]below left:\i-A}] (\i-A) {} ;
+	\filldraw (0.5cm,0.5cm+\i*2cm) circle[radius=1pt] node[coordinate,label={[font=\tiny]above right:\i-B}] (\i-B) {} ;
+}
+
+\linkio[mid=0.8,V]{0-A}{0-B}
+
+\iopin[at=(1-A),left,in]{X1i}
+\linkio[mid=0.2]{X1i}{1-B}
+
+\iopin[at=(2-B),right,out]{X2o}
+\linkio[mid=0.3]{2-A}{X2o}
+
+\iopin[at=(3-B),above,out]{X3o}
+\linkio[mid=0.3]{3-A}{X3o}
+
+\linkio[onto,V]{4-A}{4-B}
+
+\end{tikzpicture}
+
+
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\begin{blockio}[name=B,block style={draw,gray}]{Link}
+	\iopin[east up,out]{EU-o}
+	\iopin[east up,in]{EU-i}
+	
+	\iopin[south right,in]{SR-i}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\foreach \c in {ne,se,sw,nw} {
+	\foreach \i in {1,...,2} {
+		\filldraw (B.\c\i) circle[radius=1pt] node[below,font=\tiny,text opacity=0.3] {\c\i};
+	}
+}
+
+\linkio[by=(B.se1)]{SR-o}{EU-i}
+\linkio{EU-o}{B.se2}
+
+\linkio[via={($(B.se2)+(0,-2)$)},draw=red,thick]
+{B.nw2}{SR-i}
+
+\end{tikzpicture}
+
+
+\tikzset{every block shape/.append style={dashed,
+append after command={node[gray,below right= 2mm of \blkioname.block south east,font=\tiny] {\blkioname} edge[->,dashed,draw=gray] (\blkioname) }
+}}
+\tikzset{every block text/.append style={yellow}}
+\tikzset{every block/.style={dotted}}
+\tikzset{every iopin/.append style={cyan,thick} }
+\tikzset{every iopin text/.append style={red} }
+\tikzset{every link/.style={draw=cyan,thick} }
+%
+%
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\filldraw (1,1) circle[radius=1pt] node[coordinate,label={[font=\tiny]below right:ref}] (ref) {} ;
+
+\begin{blockio}[block style={draw,gray,above right=2cm of ref},shape=diamond]{B}
+	\iopin[east up,out]{EU-o}
+	\iopin[east up,in]{EU-i}
+	
+	\iopin[south right,in]{SR-i}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\def\anchor{se3}
+\filldraw (B.\anchor) circle[radius=1pt] node[coordinate,label={[font=\tiny]below right:\anchor}] {} ;
+
+\begin{blockio}[below left=5mm of B.\anchor,block style={draw,gray}]{Below Left\\of B.\anchor}
+	\iopin[west up,out]{1}
+	\iopin[west up,in]{2}
+	
+	\iopin[north right,out]{3}
+	\iopin[north right,in]{4}
+\end{blockio}
+
+\linkio[via=(B.se1)]{SR-o}{4}
+\linkio[via=(B.se2)]{3}{SR-i}
+
+\end{tikzpicture}
+
+\end{document}
+
+

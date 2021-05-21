@@ -1,0 +1,33 @@
+The pgfblockio package v1.0
+------------------------------------------------------------------------------
+This package is released under the LaTeX Project Public License v1.3c or later
+(see http://www.latex-project.org/lppl.txt).
+
+The pgfblockio package provides the iopin command, which
+draws Input/Output pins within a Tikz picture.
+The user can select the direction and orientation of the IO pin, 
+the pin size is computed based on pin text.
+
+The pgfblockio package provides the linkio command, which
+connects point and IO pin with a path within a Tikz picture.
+The link is drawn with vertical and horizontal line.
+Orthogonality is determined from the IO pin orientation.
+The user can select the orthogonality when linking two points.
+The user can provide a pathway point for the link, the path can 
+pass by the point or via the point's line.
+
+The pgfblockio package provides the blockio environment, which
+draws a Block with Input/Output pins within a Tikz picture.
+The user may add various IO pins to the block at 12 different
+positions around the block, 3 positions on 4 sides.
+The block size is determined by the size of the IO Pins given,
+placement will occur automatically at the end of the blockio environment.
+
+
+The package makes use of pgf/TikZ (http://tug.ctan.org/pkg/pgf).
+
+Usage: reference the pgfblockio package
+
+--
+Stanislas Bertrand
+21st May 2021

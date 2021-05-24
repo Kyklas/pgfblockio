@@ -12,7 +12,7 @@
 %%
 %%
 
-\ProvidesPackage{pgfblockio}[2021/05/21 v1.0 Draw Block Diagram with Input/Output]
+\ProvidesPackage{pgfblockio}[2021/05/21 v1.1 Draw Block Diagram with Input/Output]
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \RequirePackage{tikz}
 \usetikzlibrary{%
@@ -70,7 +70,7 @@
 %
 
 \blkioset{every io space/.code={\def\blkio@io@space{#1}}}
-\def\blkio@io@space{2mm}
+\def\blkio@io@space{3mm}
 
 \tikzset{every block text/.style={align=center}}
 \tikzset{every block shape/.style={draw,
@@ -196,6 +196,9 @@
 \blkio@blk@set{inner sep/.code=\def\blkio@blk@inner@sep{#1}}
 \def\blkio@blk@inner@sep{5pt}
 
+\blkio@blk@set{outer sep/.code=\def\blkio@blk@outer@sep{#1}}
+\def\blkio@blk@outer@sep{1pt}
+
 \blkio@blk@set{in sep/.code=\def\blkio@blk@in@sep{#1}}
 \def\blkio@blk@in@sep{5mm}
 
@@ -279,11 +282,16 @@
 
 %
 % #1 - name / shape name (rectangle, ellipse, diamond)
+% #2 - scale shape
+% #3 - shape ratio
+% #4 - shape io link
 %
-\def\blkio@blk@shape@std@define#1{
+\def\blkio@blk@shape@std@define#1#2#3#4{
 	\blkio@blk@set{shape/#1/.code={
-			\def\blkio@blk@shape@size{\blkio@blk@shape@std@size}
+			\def\blkio@blk@size@scale@shape{#2}
+			\def\blkio@blk@size@shape@ratio{#3}
 			\def\blkio@blk@shape@place{\csname blkio@blk@shape@#1@place\endcsname}
+			\def\blkio@blk@shape@io{#4}
 		}
 	}
 	
@@ -292,8 +300,8 @@
 		\node[every block shape,rounded corners,
 			blkio@style/.expand once=\blkio@shape@style,
 			at=(\blkio@blk@name.center),
-			minimum width=\blkio@blk@width+2*\blkio@blk@inner@sep,
-			minimum height=\blkio@blk@height+2*\blkio@blk@inner@sep,
+			minimum width=\blkio@blk@width,
+			minimum height=\blkio@blk@height,
 			#1
 			] (\blkio@blk@name-shape) {};
 	
@@ -304,75 +312,250 @@
 	% no size change keep current \blkio@blk@width \blkio@blk@height
 }
 
-\blkio@blk@shape@std@define{rectangle}
-\blkio@blk@shape@std@define{ellipse}
-\blkio@blk@shape@std@define{diamond}
+\def\blkio@blk@shape@scale@ellipse{
+	\blkio@blk@width=1.4142136\blkio@blk@width
+	\blkio@blk@height=1.4142136\blkio@blk@height
+}
+
+\def\blkio@blk@shape@io@ellipse{
+
+	% TODO - Fixme, use ellipse tangent if possible, for now point on ellipse from center
+
+	\def\blkio@blk@shape@io@path{(\blkio@blk@name) -- (\blkio@io@place@x,\blkio@io@place@y) 
+									-- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
+}
+
+\def\blkio@blk@shape@scale@diamond{
+	\multiply\blkio@blk@width by 2
+	\multiply\blkio@blk@height by 2
+}
+\def\blkio@blk@shape@io@diamond{
+	\pgfextractx{\pgf@xa}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
+	\pgfextracty{\pgf@ya}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
+	
+	\pgfmathparse{Mod(atan2(\blkio@io@place@y-\pgf@ya,\blkio@io@place@x-\pgf@xa),360)}
+	\let\@pt@angle=\pgfmathresult
+	
+	\ifdim\@pt@angle pt<180 pt
+		\def\@corner@a{north}
+	\else
+		\def\@corner@a{south}
+	\fi
+	
+	\pgfmathparse{abs(\@pt@angle-180)}
+	\ifdim\pgfmathresult pt<90 pt
+		\def\@corner@b{west}
+	\else
+		\def\@corner@b{east}
+	\fi
+	
+	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.\@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.\@corner@b)$) 
+				-- (\blkio@io@place@x,\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
+}
+
+\def\blkio@blk@shape@circle@ratio{
+	\pgfmathdivide@{\blkio@blk@width}{\blkio@blk@height}
+	\let\@block@ratio\pgfmathresult
+	
+	\ifdim\@block@ratio pt < 1 pt
+		\pgfmathsetlength{\global\blkio@blk@width}{\blkio@blk@height}
+	\else
+		\pgfmathsetlength{\global\blkio@blk@height}{\blkio@blk@width}
+	\fi
+}
+
+\blkio@blk@shape@std@define{rectangle}{\blkio@blk@shape@std@size}{}{}
+\blkio@blk@shape@std@define{circle}{\blkio@blk@shape@scale@ellipse}{\blkio@blk@shape@circle@ratio}{\blkio@blk@shape@io@ellipse}
+\blkio@blk@shape@std@define{ellipse}{\blkio@blk@shape@scale@ellipse}{}{\blkio@blk@shape@io@ellipse}
+\blkio@blk@shape@std@define{diamond}{\blkio@blk@shape@scale@diamond}{}{\blkio@blk@shape@io@diamond}
 
 \blkio@blk@set{shape=rectangle}
 
-\def\blkio@blk@shape@rp@place#1#2{
-	\blkio@debug{Placing Block shape RP#1 @ #2 for `\blkio@blk@name` with `\blkio@shape@style`}
-	
-	\pgfmathsetlengthmacro\@min@size{min(\blkio@blk@width+2*\blkio@blk@inner@sep,\blkio@blk@height+2*\blkio@blk@inner@sep)}
-	
-	\node[every block shape,
-		blkio@style/.expand once=\blkio@shape@style,
-		at=(\blkio@blk@name.center),
-		minimum size=\@min@size,
-		regular polygon,regular polygon sides=#1,shape border rotate=#2
-		] (\blkio@blk@name-shape) {};
-}
-
-\def\blkio@blk@shape@rp@size#1{
-		\pgfmathdivide@{\blkio@blk@height}{\blkio@blk@width}
-		\pgfmathatan@{\pgfmathresult}
-		\pgfmathsec@{\pgfmathresult}
-		\pgfmathmultiply@{\blkio@blk@width}{\pgfmathresult}
-		\let\blk@i\pgfmathresult
-		
-		\pgfmathdivide@{180}{#1}%
-		\pgfmathsec@{\pgfmathresult}%
-		\pgfmathmultiply@{\blk@i}{\pgfmathresult}
-		\let\blk@r\pgfmathresult
-		
-		\blkio@debug{shape RP #1 size for `\blkio@blk@name` = `\blk@r`}
-
-		\blkio@blk@set@min@width{\blk@r}
-		\blkio@blk@set@min@height{\blk@r}
-}
 
 %
-% #1 - sides
-% #2 - orientation (N,W,E,S)
-% #3 - angle
+% ################### Regular Polygon
 %
-\def\blkio@blk@shape@rp@define#1#2#3{
-	\blkio@blk@set{shape/RP#1#2/.code={
-			\def\blkio@blk@shape@size{\blkio@blk@shape@rp@size{#1}}
-			\def\blkio@blk@shape@place{\blkio@blk@shape@rp@place{#1}{#3}}
+
+%
+% #1 - name
+% #2 - radius factor
+% #3 - width factor
+% #4 - height factor
+% #5 - shape sides
+% #6 - shape angle
+% #7 - shape anchor
+% #8 - sector angle
+%
+\def\blkio@blk@shape@rp@define#1#2#3#4#5#6#7#8{
+	\blkio@blk@set{shape/RP#5#1/.code={
+			\def\blkio@blk@size@scale@shape{\blkio@blk@size@scale@shape@rp{#3}{#4}}
+			\def\blkio@blk@size@shape@ratio{\blkio@blk@size@shape@ratio@rp{#3}{#4}}
+			\def\blkio@blk@shape@place{\blkio@blk@shape@place@rp{#5}{#6}{#7}{#2}{#3}}
+			\def\blkio@blk@shape@io{\blkio@blk@shape@io@rp{#5}{#8}}
 		}
 	}
 }
 
-\blkio@blk@shape@rp@define{3}{N}{0}
-\blkio@blk@shape@rp@define{3}{E}{-90}
-\blkio@blk@shape@rp@define{3}{W}{+90}
-\blkio@blk@shape@rp@define{3}{S}{180}
+%
+% #1 - width factor
+% #2 - height factor
+%
+\def\blkio@blk@size@scale@shape@rp#1#2{
+	% compute RP inner radius
+	\pgfmathdivide@{\blkio@blk@height}{\blkio@blk@width}
+	\pgfmathatan@{\pgfmathresult}
+	\pgfmathsec@{\pgfmathresult}
+	\pgfmathmultiply@{\blkio@blk@width}{\pgfmathresult}
+	\pgfmathdivide@{\pgfmathresult}{2}
+	\let\@rp@radius\pgfmathresult
+	
+	\pgfmathmultiply@{\@rp@radius}{#1}
+	\blkio@blk@set@min@width{\pgfmathresult}
+	\pgfmathmultiply@{\@rp@radius}{#2}
+	\blkio@blk@set@min@height{\pgfmathresult}
+}
 
-\blkio@blk@shape@rp@define{5}{N}{0}
-\blkio@blk@shape@rp@define{5}{E}{-90}
-\blkio@blk@shape@rp@define{5}{W}{+90}
-\blkio@blk@shape@rp@define{5}{S}{180}
+%
+% #1 - width factor
+% #2 - height factor
+%
+\def\blkio@blk@size@shape@ratio@rp#1#2{
+	\pgfmathdivide@{#1}{#2}
+	\let\@rp@ratio\pgfmathresult
+	
+	\pgfmathdivide@{\blkio@blk@width}{\blkio@blk@height}
+	\let\@block@ratio\pgfmathresult
+	
+	\ifdim\@block@ratio pt < \@rp@ratio pt
+		\pgfmathsetlength{\global\blkio@blk@width}{\@rp@ratio*\blkio@blk@height}
+	\else
+		\pgfmathsetlength{\global\blkio@blk@height}{\blkio@blk@width/\@rp@ratio}
+	\fi
+}
 
-\blkio@blk@shape@rp@define{6}{H}{0}
-\blkio@blk@shape@rp@define{6}{V}{30}
 
-\blkio@blk@shape@rp@define{7}{N}{0}
-\blkio@blk@shape@rp@define{7}{E}{-90}
-\blkio@blk@shape@rp@define{7}{W}{+90}
-\blkio@blk@shape@rp@define{7}{S}{180}
+%
+% #1 - shape sides
+% #2 - shape angle
+% #3 - shape anchor
+% #4 - radius factor
+% #5 - width factor
+%
+\def\blkio@blk@shape@place@rp#1#2#3#4#5{
+	\pgfmathsetlengthmacro\@rp@diam{2*#4*\blkio@blk@width/#5}
 
-\blkio@blk@shape@rp@define{8}{}{0}
+	\node[every block shape,
+		blkio@style/.expand once=\blkio@shape@style,
+		minimum size=\@rp@diam,
+		regular polygon,regular polygon sides=#1,
+		shape border rotate=#2,
+		anchor=#3
+		] at ( \blkio@blk@name.block #3) (\blkio@blk@name-shape) {};
+}
+
+\def\blkio@blk@shape@io@rp#1#2{
+	\pgfextractx{\pgf@xa}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
+	\pgfextracty{\pgf@ya}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
+	
+	\pgfmathparse{Mod(atan2(\blkio@io@place@y-\pgf@ya,\blkio@io@place@x-\pgf@xa),360)}
+	\let\@pt@angle@abs=\pgfmathresult
+	\pgfmathparse{Mod(\@pt@angle@abs+#2,360)}
+	\let\@pt@angle=\pgfmathresult
+	
+	\pgfmathdivide@{360}{#1}
+	\let\@pr@angle=\pgfmathresult
+	\pgfmathdivide@{\@pt@angle}{\@pr@angle}
+	\pgfmathfloor{\pgfmathresult}
+	\pgfmathadd@{\pgfmathresult}{1}
+	\pgfmathint{\pgfmathresult}
+	\let\@corner@a=\pgfmathresult
+	\pgfmathparse{max(Mod(\@corner@a+1,#1+1),1)}
+	\pgfmathint{\pgfmathresult}
+	\let\@corner@b=\pgfmathresult
+	
+	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.corner \@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.corner \@corner@b)$) 
+				-- (\the\blkio@io@place@x,\the\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
+}
+
+
+%
+% #1 - RP sides
+% #2 - RP Name
+%
+\def\blk@shape@rp@radius@factor@set#1#2{
+	% Radius
+	\pgfmathdivide@{180}{#1}%
+	\pgfmathsec@{\pgfmathresult}%
+	\expandafter\let\csname blk@shape@rp@#2@radius@f\endcsname=\pgfmathresult
+}
+
+% compute factor for regular polygon trigone or Pentagone
+%
+% #1 - RP Sides
+% #2 - RP Name
+%
+\def\blk@shape@rp@tri@penta@factors@set#1#2{
+	% RP tip
+	\pgfmathparse{1+\csname blk@shape@rp@#2@radius@f\endcsname}
+	\expandafter\let\csname blk@shape@rp@#2@tip@f\endcsname=\pgfmathresult
+	% RP base
+	\pgfmathdivide@{360}{#1}%
+	\pgfmathsin@{\pgfmathresult}%
+	\pgfmathmultiply@{\csname blk@shape@rp@#2@radius@f\endcsname}{\pgfmathresult}
+	\pgfmathmultiply@{2}{\pgfmathresult}
+	\expandafter\let\csname blk@shape@rp@#2@base@f\endcsname=\pgfmathresult
+}
+
+% compute factor for regular polygon hexagone
+%
+\def\blk@shape@rp@hexa@factors@set{
+	% RP tip
+	\pgfmathparse{2*\blk@shape@rp@hexa@radius@f}
+	\let\blk@shape@rp@hexa@tip@f=\pgfmathresult
+	% RP base
+	\pgfmathmultiply@{2}{1}
+	\let\blk@shape@rp@hexa@base@f=\pgfmathresult
+}
+
+% compute factor for regular polygon octagone
+%
+\def\blk@shape@rp@octa@factors@set{
+	% RP tip
+	\pgfmathmultiply@{2}{1}
+	\let\blk@shape@rp@octa@tip@f=\pgfmathresult
+	% RP base
+	\let\blk@shape@rp@octa@base@f=\pgfmathresult
+}
+
+%
+% ################### Regular Polygon End
+%
+
+% RP Radius Factors
+\blk@shape@rp@radius@factor@set{3}{tri}
+\blk@shape@rp@radius@factor@set{5}{penta}
+\blk@shape@rp@radius@factor@set{6}{hexa}
+\blk@shape@rp@radius@factor@set{8}{octa}
+% RP tip/base Factors
+\blk@shape@rp@tri@penta@factors@set{3}{tri}
+\blk@shape@rp@tri@penta@factors@set{5}{penta}
+\blk@shape@rp@hexa@factors@set
+\blk@shape@rp@octa@factors@set
+
+\blkio@blk@shape@rp@define{N}{\blk@shape@rp@tri@radius@f}{\blk@shape@rp@tri@base@f}{\blk@shape@rp@tri@tip@f}{3}{0}{north}{-90}
+\blkio@blk@shape@rp@define{E}{\blk@shape@rp@tri@radius@f}{\blk@shape@rp@tri@tip@f}{\blk@shape@rp@tri@base@f}{3}{-90}{east}{0}
+\blkio@blk@shape@rp@define{W}{\blk@shape@rp@tri@radius@f}{\blk@shape@rp@tri@tip@f}{\blk@shape@rp@tri@base@f}{3}{90}{west}{-180}
+\blkio@blk@shape@rp@define{S}{\blk@shape@rp@tri@radius@f}{\blk@shape@rp@tri@base@f}{\blk@shape@rp@tri@tip@f}{3}{180}{south}{90}
+
+\blkio@blk@shape@rp@define{N}{\blk@shape@rp@penta@radius@f}{\blk@shape@rp@penta@base@f}{\blk@shape@rp@penta@tip@f}{5}{0}{north}{-90}
+\blkio@blk@shape@rp@define{E}{\blk@shape@rp@penta@radius@f}{\blk@shape@rp@penta@tip@f}{\blk@shape@rp@penta@base@f}{5}{-90}{east}{0}
+\blkio@blk@shape@rp@define{W}{\blk@shape@rp@penta@radius@f}{\blk@shape@rp@penta@tip@f}{\blk@shape@rp@penta@base@f}{5}{90}{west}{-180}
+\blkio@blk@shape@rp@define{S}{\blk@shape@rp@penta@radius@f}{\blk@shape@rp@penta@base@f}{\blk@shape@rp@penta@tip@f}{5}{180}{south}{90}
+
+\blkio@blk@shape@rp@define{H}{\blk@shape@rp@hexa@radius@f}{\blk@shape@rp@hexa@tip@f}{\blk@shape@rp@hexa@base@f}{6}{0}{east}{-60}
+\blkio@blk@shape@rp@define{V}{\blk@shape@rp@hexa@radius@f}{\blk@shape@rp@hexa@base@f}{\blk@shape@rp@hexa@tip@f}{6}{30}{north}{-90}
+
+\blkio@blk@shape@rp@define{}{\blk@shape@rp@octa@radius@f}{\blk@shape@rp@octa@base@f}{\blk@shape@rp@octa@tip@f}{8}{0}{north}{-67.5}
 
 
 \def\blkio@blk@init{
@@ -499,7 +682,7 @@
 \newenvironment{blockio}[2][]{
 	\blkio@debug{--- blkio '#1' '#2'}
 
-	\advance\blkio@blk@count by 1\relax
+	\global\advance\blkio@blk@count by 1\relax
 
 	% Reset BLKIO values
 	\blkio@blk@init
@@ -536,13 +719,21 @@
 }{
 	\blkio@debug{--- endblkio}
 	
-	\blkio@blk@shape@size
+	% Scale block size based on shape
+	\blkio@blk@size@scale@shape
 	
-	% Computing blk boundary
+	% block size increase base on iopins
 	\blkio@blk@north@side@calc
 	\blkio@blk@east@side@calc
 	\blkio@blk@west@side@calc
 	\blkio@blk@south@side@calc
+	
+	% Add inner spacing
+	\pgfmathsetlength{\blkio@blk@width}{\blkio@blk@width+2*\blkio@blk@inner@sep}
+	\pgfmathsetlength{\blkio@blk@height}{\blkio@blk@height+2*\blkio@blk@inner@sep}
+	
+	% block size update to shape ratio, may do nothing
+	\blkio@blk@size@shape@ratio
 	
 	\pgfextractx{\pgf@xc}{\blkio@blk@at}
 	\pgfextracty{\pgf@yc}{\blkio@blk@at}
@@ -559,8 +750,8 @@
 	
 	\blkio@blk@shape@place
 	
-	\pgfextractx{\blkio@io@place@x}{\pgfpointanchor{\blkio@blk@name}{block \blk@blk@text@anchor}}
-	\pgfextracty{\blkio@io@place@y}{\pgfpointanchor{\blkio@blk@name}{block \blk@blk@text@anchor}}
+	\pgfextractx{\blkio@io@place@x}{\pgfpointanchor{\blkio@blk@name-shape}{\blk@blk@text@anchor}}
+	\pgfextracty{\blkio@io@place@y}{\pgfpointanchor{\blkio@blk@name-shape}{\blk@blk@text@anchor}}
 	\blkio@node@place{blkio@blk@text}{\blkio@io@place@x}{\blkio@io@place@y}
 	
 	\blkio@io@north@left@place
@@ -655,6 +846,9 @@
 \blkio@io@set{style/.code=\def\blkio@io@pin@style{#1}}
 \def\blkio@io@pin@style{}
 
+\blkio@io@set{link style/.code=\def\blkio@io@link@style{#1}}
+\def\blkio@io@link@style{}
+
 %
 % ===================================== IO Pin Macro
 %
@@ -739,6 +933,7 @@
 		\def\@io@pin@prefix{blkio@io@#1@#2@io-\number\csname blkio@io@#1@#2@count\endcsname}	
 		\expandafter\edef\csname\@io@pin@prefix @name\endcsname{\blkio@name@def}
 		\expandafter\let\csname\@io@pin@prefix @style\endcsname=\blkio@io@pin@style
+		\expandafter\let\csname\@io@pin@prefix @link@style\endcsname=\blkio@io@link@style
 		
 		\ifblkio@io@dir@input
 			\expandafter\def\csname\@io@pin@prefix @dir\endcsname{\blkio@io@dir@inputtrue}
@@ -776,6 +971,7 @@
 					\edef\@io@pin@prefix{blkio@io@#1@#2@io-\i}
 					\edef\@io@pin@name{\csname\@io@pin@prefix @name\endcsname}
 					\expandafter\let\expandafter\@io@pin@style\csname\@io@pin@prefix @style\endcsname
+					\expandafter\let\expandafter\@io@link@style\csname\@io@pin@prefix @link@style\endcsname
 					
 					\csname\@io@pin@prefix @dir\endcsname
 					
@@ -783,12 +979,14 @@
 						\edef\@io@text@param{\blkio@get@param{#1}{text}{in}}
 						\edef\@io@pin@param{\blkio@get@param{#1}{pin}{in}}
 						\blkio@keydef{symbol distance}{\blkio@blk@in@sep}
-						\edef\@io@text@depth@shift{ (\csname blkio@blk@#1@depth\endcsname - \blkio@blk@in@sep) }
+						\edef\@io@text@depth@shift{ (\csname blkio@blk@#1@depth\endcsname + \blkio@blk@outer@sep - \blkio@blk@in@sep) }
+						\def\@io@pin@anchor{out}
 					\else
 						\edef\@io@text@param{\blkio@get@param{#1}{text}{out}}
 						\edef\@io@pin@param{\blkio@get@param{#1}{pin}{out}}
 						\blkio@keydef{symbol distance}{\blkio@blk@out@sep}
-						\edef\@io@text@depth@shift{ \blkio@blk@out@sep }
+						\edef\@io@text@depth@shift{ \blkio@blk@out@sep + \blkio@blk@outer@sep }
+						\def\@io@pin@anchor{in}
 					\fi
 					
 					\blkio@param@value{text}\@io@text@param
@@ -803,17 +1001,29 @@
 					% growth by the node size
 					\csname blkio@io@#1@#2@coord@growth\endcsname{#3}
 					
+					% growth by half the io pin space
+					\csname blkio@io@#1@#2@coord@growth\endcsname{\blkio@io@space/2}
+					\csname blkio@io@#1@depth@shift\endcsname{\blkio@blk@outer@sep}
+					
+					\def\blkio@blk@shape@io@path{(\blkio@io@place@x,\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
+					\blkio@blk@shape@io
+					
+					% IO Link
+					\draw[every link,blkio@style/.expand once=\@io@link@style] 
+							\blkio@blk@shape@io@path ;
+							
 					% IO Pin
-					\draw node[every iopin,
-							rotate=\blkiopinrotate,
-							anchor=\blkiopinanchor,
-							blkio@style/.expand once=\@io@pin@style,
-							minimum width=\csname blkio@blk@#1@depth\endcsname,
-							minimum height=\blkio@io@space]
-							at (\blkio@io@place@x,\blkio@io@place@y)
-							(\blkiopinname) {};					
-					% growth by the io pin space
-					\csname blkio@io@#1@#2@coord@growth\endcsname{\blkio@io@space}
+					\draw	node[every iopin,
+									rotate=\blkiopinrotate,
+									anchor=\@io@pin@anchor,
+									blkio@style/.expand once=\@io@pin@style,
+									minimum width=\csname blkio@blk@#1@depth\endcsname,
+									minimum height=\blkio@io@space]
+									at (\blkio@io@place@shift@x,\blkio@io@place@shift@y)
+									(\blkiopinname) {};
+					
+					% growth by half the io pin space
+					\csname blkio@io@#1@#2@coord@growth\endcsname{\blkio@io@space/2}
 			}
 		\fi
 	}
@@ -1067,6 +1277,7 @@
 	\blkio@debug{IO Pin '#1' '#2'}
 	\let\blkio@io@text@style=\empty
 	\let\blkio@io@pin@style=\empty
+	\let\blkio@io@link@style=\empty
 	\iopin@set@at{\pgfqpoint{0pt}{0pt}}
 	\blkio@io@set{in,#1}
 	\blkio@create@iopin{#2}
@@ -1359,27 +1570,27 @@
 \pgfdeclareshape{ioblock}{
 
 	\savedmacro\blk@in@width{
-        \pgfmathsetlengthmacro{\blk@in@width}{\blkio@blk@width+2*\blkio@blk@inner@sep}
+        \pgfmathsetlengthmacro{\blk@in@width}{\blkio@blk@width}
 	}
 	
 	\savedmacro\blk@out@w{
-        \pgfmathsetlengthmacro{\blk@out@w}{ -0.5*\blk@in@width - \blkio@blk@west@depth }
+        \pgfmathsetlengthmacro{\blk@out@w}{ -0.5*\blk@in@width - \blkio@blk@west@depth - \blkio@blk@outer@sep }
 	}
 	
 	\savedmacro\blk@out@e{
-        \pgfmathsetlengthmacro{\blk@out@e}{ 0.5*\blk@in@width + \blkio@blk@east@depth }
+        \pgfmathsetlengthmacro{\blk@out@e}{ 0.5*\blk@in@width + \blkio@blk@east@depth + \blkio@blk@outer@sep }
 	}
 	
 	\savedmacro\blk@in@height{
-        \pgfmathsetlengthmacro{\blk@in@height}{\blkio@blk@height+2*\blkio@blk@inner@sep}
+        \pgfmathsetlengthmacro{\blk@in@height}{\blkio@blk@height}
 	}
 	
 	\savedmacro\blk@out@n{
-        \pgfmathsetlengthmacro{\blk@out@n}{ 0.5*\blk@in@height + \blkio@blk@north@depth }
+        \pgfmathsetlengthmacro{\blk@out@n}{ 0.5*\blk@in@height + \blkio@blk@north@depth + \blkio@blk@outer@sep }
 	}
 	
 	\savedmacro\blk@out@s{
-        \pgfmathsetlengthmacro{\blk@out@s}{ -0.5*\blk@in@height - \blkio@blk@south@depth }
+        \pgfmathsetlengthmacro{\blk@out@s}{ -0.5*\blk@in@height - \blkio@blk@south@depth - \blkio@blk@outer@sep }
 	}
 	
 	\savedmacro\blk@name{
@@ -1599,27 +1810,10 @@
 	}%
 
 	\backgroundpath{
-		\ifblkioenv
-			\ifblkio@io@dir@input
-				\pgfpathmoveto{\in}
-				\pgfpathlineto{\insymbol}
-				\pgfpathmoveto{\outsymbol}
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-				\pgfpathlineto{\pgfpointshapeborder{\blkio@blk@name-shape}{\pgfpointscale{-1}{\in}}}				
-			\else
-				% IOPin is output from the blk
-				\pgfpathmoveto{\pgfpointshapeborder{\blkio@blk@name-shape}{\in}}
-				\pgfpathlineto{\in}
-				\pgfpathlineto{\insymbol}
-				\pgfpathmoveto{\outsymbol}
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-			\fi
-		\else
-			\pgfpathmoveto{\in}		
-			\pgfpathlineto{\insymbol}
-			\pgfpathmoveto{\outsymbol}
-			\pgfpathlineto{\pgfpointscale{-1}{\in}}
-		\fi
+		\pgfpathmoveto{\in}		
+		\pgfpathlineto{\insymbol}
+		\pgfpathmoveto{\outsymbol}
+		\pgfpathlineto{\pgfpointscale{-1}{\in}}
 	}
 
 	\foregroundpath{
@@ -1665,31 +1859,6 @@
 	}%
 	
 	\backgroundpath{
-	
-		\ifblkioenv
-			\ifblkio@io@dir@input
-				\pgfpathmoveto{\in}
-				\pgfpathlineto{\insymbol}
-				\pgfpathmoveto{\outsymbol}
-				\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpoint{0.8*\iopin@height}{0.4*\iopin@height}}}
-				\pgfpathlineto{\insymbol}
-				\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpoint{0.8*\iopin@height}{-0.4*\iopin@height}}}
-				\pgfpathclose
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-				\pgfpathlineto{\pgfpointshapeborder{\blkio@blk@name-shape}{\pgfpointscale{-1}{\in}}}				
-			\else
-				% IOPin is output from the blk
-				\pgfpathmoveto{\pgfpointshapeborder{\blkio@blk@name-shape}{\in}}
-				\pgfpathlineto{\in}
-				\pgfpathlineto{\insymbol}
-				\pgfpathmoveto{\outsymbol}
-				\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpoint{0.8*\iopin@height}{0.4*\iopin@height}}}
-				\pgfpathlineto{\insymbol}
-				\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpoint{0.8*\iopin@height}{-0.4*\iopin@height}}}
-				\pgfpathclose
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-			\fi
-		\else
 			\pgfpathmoveto{\in}
 			\pgfpathlineto{\insymbol}
 			\pgfpathmoveto{\outsymbol}
@@ -1698,7 +1867,6 @@
 			\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpoint{0.8*\iopin@height}{-0.4*\iopin@height}}}
 			\pgfpathclose
 			\pgfpathlineto{\pgfpointscale{-1}{\in}}
-		\fi
 	}
 }
 
@@ -1713,21 +1881,100 @@
 	\inheritanchor[from=iopin]{symbol}
 	
 	\backgroundpath{
-	
-		\ifblkioenv
-			\ifblkio@io@dir@input
-				\pgfpathmoveto{\in}
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-				\pgfpathlineto{\pgfpointshapeborder{\blkio@blk@name-shape}{\pgfpointscale{-1}{\in}}}				
-			\else
-				% IOPin is output from the blk
-				\pgfpathmoveto{\pgfpointshapeborder{\blkio@blk@name-shape}{\in}}
-				\pgfpathlineto{\in}
-				\pgfpathlineto{\pgfpointscale{-1}{\in}}
-			\fi
-		\else
-			\pgfpathmoveto{\in}		
-			\pgfpathlineto{\pgfpointscale{-1}{\in}}
-		\fi
+		\pgfpathmoveto{\in}		
+		\pgfpathlineto{\pgfpointscale{-1}{\in}}
 	}
 }
+
+%
+% ===================================== IO Pin & Link Style
+%
+
+% ------------ Event
+
+\tikzset{LKEvent/.style={
+	dashed
+}}
+
+\blkioset{IOEvent/.style={/blkio/io/.cd,
+	style={
+		LKEvent,ioline,
+		append after command={ node[draw,dart,fill=white,
+									font=\tiny,
+									inner sep=1pt,
+									outer sep=0mm,
+									minimum size=2.6mm,
+									rotate=\blkiopinrotate] 
+									at (\tikzlastnode.symbol) {} }
+		},
+	link style={LKEvent}
+}}
+
+
+% ------------ Signal
+
+\tikzset{LKSignal/.style={
+	% keep default
+}}
+
+\blkioset{IOSignal/.style={/blkio/io/.cd,
+	style={
+		LKSignal,fill=white
+	},
+	link style={
+		LKSignal
+	}
+}}
+
+% ------------ Duplex
+
+\tikzset{LKDuplex/.style={
+	thick
+}}
+
+\blkioset{IODuplex/.style={/blkio/io/.cd,
+	style={
+		LKDuplex,ioduplex,fill=white
+	},
+	link style={
+		LKDuplex
+	}
+}}
+
+% ------------ Data
+
+\tikzset{LKData/.style={
+	thick
+}}
+
+\blkioset{IOData/.style={/blkio/io/.cd,
+	style={
+		LKData,fill=black
+	},
+	link style={
+		LKData
+	}
+}}
+
+% ------------ Proto
+
+\tikzset{LKProto/.style={
+	double,double distance=1mm,line width=1pt,
+}}
+
+\blkioset{IOProto/.style={/blkio/io/.cd,
+	style={
+		LKProto,ioline,
+		append after command={ node[draw,diamond,fill=black,LKProto,double distance=0.5mm,
+									font=\tiny,
+									inner sep=0.05pt,
+									outer sep=0mm,
+									minimum height=1.6mm,
+									minimum width=4mm,
+									rotate=\blkiopinrotate] 
+									at (\tikzlastnode.symbol) {} }
+		},
+	link style={LKProto}
+}}
+
+

@@ -46,9 +46,9 @@
 \begin{tikzpicture}
 \draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
 
-\begin{blockio}[inner sep=0pt]{}
+\begin{blockio}[inner sep=0pt,name=empty]{}
 \end{blockio}
-\node[below=5pt of blk1,font=\tiny] {inner sep=0pt};
+\node[below=5pt of empty,font=\tiny] {inner sep=0pt};
 \end{tikzpicture}
 
 
@@ -115,8 +115,13 @@
 \draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
 
 \tikzset{mystyle/.style={
-       blue,thick,
-       append after command={ node[fill=blue,dart,font=\tiny,inner sep=0.5mm,outer sep=0,minimum size=0mm,rotate=\blkiopinrotate] at (\tikzlastnode.out) {} }
+		blue,thick,
+		append after command={ 
+				node[fill=blue,dart,font=\tiny,
+						inner sep=0.5mm,outer sep=0,
+						minimum size=0mm,rotate=\blkiopinrotate] 
+						at (\tikzlastnode.out) {} 
+				}
 }}
 
 \begin{blockio}[shape=diamond]{\tiny Shape}
@@ -125,7 +130,7 @@
 	\iopin[south,in,style={ioduplex}]{S1}
 	\iopin[south,out,style={ioduplex},text style={blue,draw}]{S2}
 	\iopin[east,in,style={ioline}]{E1}
-	\iopin[east,out,style={ioline,mystyle}]{E2}
+	\iopin[east,out,style={ioline,mystyle},link style={blue,thick}]{E2}
 
 	\iopin[north,out,style={draw=none,
 							append after command={						(\blkiopinname.in) to[bend left] (\tikzlastnode.out) node {\tikzlastnode -\blkiopinrotate - \blkiopinanchor} node[draw] at (\blkiopinname.symbol) {}
@@ -372,7 +377,6 @@
 
 \foreach \n [count=\i] in {RP3N,RP3E,RP3W,RP3S,
 							RP5N,RP5E,RP5W,RP5S,
-							RP7N,RP7E,RP7W,RP7S,
 							RP6H,RP6V,RP8}
 	{
 		\pgfmathparse{mod(\i-1,4)}
@@ -398,7 +402,7 @@
 		\edef\iy{\pgfmathresult}
 		\pgfmathparse{(\i-\iy-1)/4}
 		\edef\ix{\pgfmathresult}
-		\begin{blockio}[block style={draw,dashed,gray},shape=\n,at={(\ix*2.5cm,\iy*2.5cm)},text style={font=\tiny},name=\n]{\n}
+		\begin{blockio}[inner sep=0,block style={draw,dashed,gray},shape=\n,at={(\ix*2.5cm,\iy*2.5cm)},text style={font=\tiny,draw,cyan,densely dashed,text=black},name=\n]{\n}
 		\end{blockio}
 	}
 
@@ -590,7 +594,7 @@
 	\iopin[east up,out]{EU-o}
 	\iopin[east up,in]{EU-i}
 	
-	\iopin[south right,in]{SR-i}
+	\iopin[south right,in,link style={draw=red,thick},style={draw=red,thick}]{SR-i}
 	\iopin[south right,out]{SR-o}
 \end{blockio}
 
@@ -609,18 +613,21 @@
 \end{tikzpicture}
 
 
+%
+%
+%
+\begin{tikzpicture}
+
+
 \tikzset{every block shape/.append style={dashed,
 append after command={node[gray,below right= 2mm of \blkioname.block south east,font=\tiny] {\blkioname} edge[->,dashed,draw=gray] (\blkioname) }
 }}
 \tikzset{every block text/.append style={yellow}}
 \tikzset{every block/.style={dotted}}
-\tikzset{every iopin/.append style={cyan,thick} }
-\tikzset{every iopin text/.append style={red} }
-\tikzset{every link/.style={draw=cyan,thick} }
-%
-%
-%
-\begin{tikzpicture}
+\tikzset{every iopin/.append style={cyan,thick}}
+\tikzset{every iopin text/.append style={red}}
+\tikzset{every link/.style={draw=cyan,thick}}
+
 \draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
 
 \filldraw (1,1) circle[radius=1pt] node[coordinate,label={[font=\tiny]below right:ref}] (ref) {} ;
@@ -646,6 +653,262 @@ append after command={node[gray,below right= 2mm of \blkioname.block south east,
 
 \linkio[via=(B.se1)]{SR-o}{4}
 \linkio[via=(B.se2)]{3}{SR-i}
+
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\foreach \n [count=\i] in {RP3N,RP3E,RP3W,RP3S,
+							RP5N,RP5E,RP5W,RP5S,
+							RP6H,RP6V,ellipse,diamond}
+	{
+		\pgfmathparse{mod(\i-1,4)}
+		\edef\iy{\pgfmathresult}
+		\pgfmathparse{(\i-\iy-1)/4}
+		\edef\ix{\pgfmathresult}
+		\begin{blockio}[block style={draw,dashed,gray},shape=\n,at={(\ix*7cm-4cm,\iy*7cm-4cm)},text style={font=\tiny},name=\n]{\n}
+		
+			\iopin[north left,in]{NL-i}
+			\iopin[north center,in]{NC-i}
+			\iopin[north right,out]{NR-i}
+
+			\iopin[east up,out]{EU-o}
+			\iopin[east center,in]{EC-i}
+			\iopin[east down,out]{ED-o}
+			
+			\iopin[west up,in]{WU-i}
+			\iopin[west center,out]{WC-o}
+			\iopin[west down,in]{WD-i}
+
+			\iopin[south left,out]{SL-o}
+			\iopin[south center,in]{SC-i}
+			\iopin[south right,out]{SR-o}
+		
+		\end{blockio}
+	}
+
+\end{tikzpicture}
+
+\begin{tikzpicture}
+
+	\begin{blockio}[block style={draw,dashed,gray},shape=RP8,at={(4cm,4cm)},name=B1]{B1}
+		\iopin[north left,in]{NL-i}
+		\iopin[north left,out]{NL-o}
+		\iopin[north center,in]{NC-i}
+		\iopin[north center,out]{NC-o}
+		\iopin[north right,in]{NR-i}
+		\iopin[north right,out]{NR-o}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+		\iopin[south left,in]{SL-i}
+		\iopin[south left,out]{SL-o}
+		\iopin[south center,in]{SC-i}
+		\iopin[south center,out]{SC-o}
+		\iopin[south right,in]{SR-i}
+		\iopin[south right,out]{SR-o}
+	\end{blockio}
+	
+	\begin{blockio}[block style={draw,dashed,gray},right= of B1.east,shape=RP5N,name=B2]{B2}
+		\iopin[north left,in]{NL-i}
+		\iopin[north left,out]{NL-o}
+		\iopin[north center,in]{NC-i}
+		\iopin[north center,out]{NC-o}
+		\iopin[north right,in]{NR-i}
+		\iopin[north right,out]{NR-o}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+		\iopin[south left,in]{SL-i}
+		\iopin[south left,out]{SL-o}
+		\iopin[south center,in]{SC-i}
+		\iopin[south center,out]{SC-o}
+		\iopin[south right,in]{SR-i}
+		\iopin[south right,out]{SR-o}
+	\end{blockio}
+	
+	\begin{blockio}[block style={draw,dashed,gray},below= of B1.south,shape=RP3W,name=B3]{B3}
+		\iopin[north left,in]{NL-i}
+		\iopin[north left,out]{NL-o}
+		\iopin[north center,in]{NC-i}
+		\iopin[north center,out]{NC-o}
+		\iopin[north right,in]{NR-i}
+		\iopin[north right,out]{NR-o}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+		\iopin[south left,in]{SL-i}
+		\iopin[south left,out]{SL-o}
+		\iopin[south center,in]{SC-i}
+		\iopin[south center,out]{SC-o}
+		\iopin[south right,in]{SR-i}
+		\iopin[south right,out]{SR-o}
+	\end{blockio}
+	
+	\begin{blockio}[block style={draw,dashed,gray},below right= of B1.south east,shape=RP6V,name=B4]{B4}
+		\iopin[north left,in]{NL-i}
+		\iopin[north left,out]{NL-o}
+		\iopin[north center,in]{NC-i}
+		\iopin[north center,out]{NC-o}
+		\iopin[north right,in]{NR-i}
+		\iopin[north right,out]{NR-o}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+		\iopin[south left,in]{SL-i}
+		\iopin[south left,out]{SL-o}
+		\iopin[south center,in]{SC-i}
+		\iopin[south center,out]{SC-o}
+		\iopin[south right,in]{SR-i}
+		\iopin[south right,out]{SR-o}
+	\end{blockio}
+	
+	\begin{blockio}[block style={draw,dashed,gray},below= of B3.south,shape=ellipse]{ellipse}
+		\iopin[north left,in]{NL}
+		\iopin[north center,out]{NC}
+		\iopin[north right,in]{NR}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+
+		\iopin[south left,out]{SL}
+		\iopin[south center,in]{SC}
+		\iopin[south right,in]{SR}
+	\end{blockio}
+	
+	\begin{blockio}[block style={draw,dashed,gray},below right= of B3.south east,shape=circle]{circle}
+		\iopin[north left,in]{NL}
+		\iopin[north center,out]{NC}
+		\iopin[north right,in]{NR}
+		
+		\iopin[east up,in]{EU-i}
+		\iopin[east up,out]{EU-o}
+		\iopin[east center,out]{EC-o}
+		\iopin[east center,in]{EC-i}
+		\iopin[east down,in]{ED-i}
+		\iopin[east down,out]{ED-o}
+		
+		\iopin[west up,in]{WU-i}
+		\iopin[west up,out]{WU-o}
+		\iopin[west center,in]{WC-i}
+		\iopin[west center,out]{WC-o}
+		\iopin[west down,in]{WD-i}
+		\iopin[west down,out]{WD-o}
+		
+
+		\iopin[south left,out]{SL}
+		\iopin[south center,in]{SC}
+		\iopin[south right,in]{SR}
+	\end{blockio}
+\end{tikzpicture}
+
+
+\begin{tikzpicture}[every node/.style={font=\fontsize{10pt}{1pt}\selectfont},/blkio/block/outer sep=10pt]
+
+\tikzset{every block/.append style={
+	fill=cyan!25!white
+}}
+
+\tikzset{every block shape/.append style={
+	line width=1pt
+}}
+
+
+\begin{blockio}[name=blk]{Sample\\Block}
+	\iopin[IOEvent,west]{Input Event}
+	\iopin[IOSignal,west]{Input Signal}\\
+	\iopin[IODuplex,west,out]{Duplex Signal 1}
+	\iopin[IODuplex,west,out]{Duplex Signal 2}
+	\iopin[IOData,east,out]{Output Data1}
+	\iopin[IOData,east,out]{Output Data2}
+	\iopin[IOProto,east,out]{Output Proto}
+	\iopin[IOSignal,east,out]{Output Signal}
+\end{blockio}
+
+\begin{blockio}[right=of blk,shape=diamond,name=blk]{Sample\\Block Long}
+	\iopin[IOEvent,west up]{Input Event}
+	\iopin[IOSignal,west down]{Input Signal}
+	\iopin[IOData,east up,out]{Output Data}
+	\iopin[IOProto,east down,out]{Output Proto}
+\end{blockio}
+
+\begin{blockio}[below=of blk,shape=RP6V,name=blk]{Sample\\Block Long}
+	\iopin[IOEvent,west up]{Input Event}
+	\iopin[IOSignal,west down]{Input Signal}
+	\iopin[IOData,east up,out]{Output Data}
+	\iopin[IOProto,east down,out]{Output Proto1}
+	\iopin[IOProto,east down,out]{Output Proto2}
+\end{blockio}
+
+\begin{blockio}[left=of blk,shape=circle,name=blk]{Sample\\Block Long}
+	\iopin[IOEvent,west up,out]{Output Event}
+	\iopin[IOSignal,west down,out]{Output Signal}
+	\iopin[IOProto,east up,in]{Input Proto}
+	\iopin[IOData,east,in]{Input Data}
+\end{blockio}
+
+
 
 \end{tikzpicture}
 

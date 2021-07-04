@@ -193,6 +193,12 @@
 	}
 }
 
+% defaults to 3pt in blkio@blk@XXX@init
+\blkio@blk@set{min depth north/.code={\pgfmathsetlength{\blkio@blk@north@depth@min}{#1}}}
+\blkio@blk@set{min depth east/.code={\pgfmathsetlength{\blkio@blk@east@depth@min}{#1}}}
+\blkio@blk@set{min depth west/.code={\pgfmathsetlength{\blkio@blk@west@depth@min}{#1}}}
+\blkio@blk@set{min depth south/.code={\pgfmathsetlength{\blkio@blk@south@depth@min}{#1}}}
+
 \blkio@blk@set{inner sep/.code=\def\blkio@blk@inner@sep{#1}}
 \def\blkio@blk@inner@sep{5pt}
 
@@ -649,10 +655,6 @@
 		
 		% Updating depth
 		
-		
-		\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}
-			{max(\csname blkio@blk@#1@depth\endcsname , \csname blkio@blk@#1@depth@min\endcsname)}
-		
 		\csname blkio@blk@#1@count\endcsname=0\relax
 		\expandafter\advance\csname blkio@blk@#1@count\endcsname by \csname blkio@io@#1@#3@count\endcsname\relax
 		\expandafter\advance\csname blkio@blk@#1@count\endcsname by \csname blkio@io@#1@#4@count\endcsname\relax
@@ -662,6 +664,9 @@
 			\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}
 				{\csname blkio@blk@#1@depth\endcsname + \blkio@blk@in@sep + \blkio@blk@out@sep }
 		\fi
+		
+		\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}
+			{max(\csname blkio@blk@#1@depth\endcsname , \csname blkio@blk@#1@depth@min\endcsname)}
 
 		\blkio@debug{#1 count \the\csname blkio@blk@#1@count\endcsname}
 		\blkio@debug{#1 depth = \the\csname blkio@blk@#1@depth\endcsname}

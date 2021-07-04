@@ -140,6 +140,32 @@
 \end{tikzpicture}
 
 %
+% ------- Sides Min Depth
+% 
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+\blkioset{block/mindepth/.style={min depth north=20mm,min depth south=20mm,
+								min depth east=10mm,min depth west=10mm}}
+
+\begin{blockio}[mindepth,name=blk]{Min Depth}
+	\iopin[west,in,style={iopin}]{iopin0}
+	\iopin[west,in,style={iopin}]{iopin1}
+	\iopin[west,out,style={iopin}]{iopin2}
+	\iopin[south left,in,style={ioduplex}]{S1}
+	\iopin[south right,out,style={ioduplex}]{S2}
+\end{blockio}
+
+\draw[<->] (blk.block north) -- node[above,font=\tiny,rotate=90] {2cm} ($(blk.block north)+(0,20mm)$);
+\draw[<->] (blk.block south) -- node[above,font=\tiny,rotate=90] {2cm} ($(blk.block south)+(0,-20mm)$);
+\draw[<->] (blk.block east) -- node[above,font=\tiny] {10mm} ($(blk.block east)+(10mm,0)$);
+\draw[<->] (blk.block north west) -- node[above,font=\tiny] {10mm} ($(blk.block north west)+(-10mm,0)$);
+
+\node[below right=0 of blk.block south east,font=\tiny,gray] {blk};
+
+\end{tikzpicture}
+
+%
 % ------------- Block All IOPin
 %
 \begin{tikzpicture}

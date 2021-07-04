@@ -166,6 +166,86 @@
 \end{tikzpicture}
 
 %
+% ------- Sides Min Span
+% 
+\begin{tikzpicture}
+
+
+\begin{blockio}[name=blk, min span north=2cm,min span west down=2cm]{Min Span\\north / west}
+	\iopin[north left,in]{NL-i}
+	\iopin[north center,in]{NC-i}
+	\iopin[north right,in]{NR-i}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\begin{blockio}[ min span north right=2cm,min span east=2cm,right= of blk]{Min Span\\north / east}
+	\iopin[north left,in]{NL-i}
+	\iopin[north center,in]{NC-i}
+	\iopin[north right,in]{NR-i}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\begin{blockio}[min span west=2cm,min span south right=2cm,below= of blk]{Min Span\\ west / south}
+	\iopin[north left,in]{NL-i}
+	\iopin[north center,in]{NC-i}
+	\iopin[north right,in]{NR-i}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\begin{blockio}[min span east down=2cm,min span south=2cm,below right= of blk]{Min Span\\ east / south}
+	\iopin[north left,in]{NL-i}
+	\iopin[north center,in]{NC-i}
+	\iopin[north right,in]{NR-i}
+	
+	\iopin[east up,in]{EU-i}
+	\iopin[east center,in]{EC-i}
+	\iopin[east down,in]{ED-i}
+	
+	\iopin[west up,out]{WU-o}
+	\iopin[west center,out]{WC-o}
+	\iopin[west down,out]{WD-o}
+	
+	\iopin[south left,out]{SL-o}
+	\iopin[south center,out]{SC-o}
+	\iopin[south right,out]{SR-o}
+\end{blockio}
+
+\end{tikzpicture}
+
+%
 % ------------- Block All IOPin
 %
 \begin{tikzpicture}

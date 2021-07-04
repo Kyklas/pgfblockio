@@ -199,6 +199,22 @@
 \blkio@blk@set{min depth west/.code={\pgfmathsetlength{\blkio@blk@west@depth@min}{#1}}}
 \blkio@blk@set{min depth south/.code={\pgfmathsetlength{\blkio@blk@south@depth@min}{#1}}}
 
+\blkio@blk@set{min span north/.code={\pgfmathsetlength{\blkio@blk@north@center@span@min}{#1}}}
+\blkio@blk@set{min span east/.code={\pgfmathsetlength{\blkio@blk@east@center@span@min}{#1}}}
+\blkio@blk@set{min span west/.code={\pgfmathsetlength{\blkio@blk@west@center@span@min}{#1}}}
+\blkio@blk@set{min span south/.code={\pgfmathsetlength{\blkio@blk@south@center@span@min}{#1}}}
+
+\blkio@blk@set{min span north left/.code={\pgfmathsetlength{\blkio@blk@north@left@span@min}{#1}}}
+\blkio@blk@set{min span north right/.code={\pgfmathsetlength{\blkio@blk@north@right@span@min}{#1}}}
+\blkio@blk@set{min span south left/.code={\pgfmathsetlength{\blkio@blk@south@left@span@min}{#1}}}
+\blkio@blk@set{min span south right/.code={\pgfmathsetlength{\blkio@blk@south@right@span@min}{#1}}}
+
+\blkio@blk@set{min span east up/.code={\pgfmathsetlength{\blkio@blk@east@up@span@min}{#1}}}
+\blkio@blk@set{min span east down/.code={\pgfmathsetlength{\blkio@blk@east@down@span@min}{#1}}}
+\blkio@blk@set{min span west up/.code={\pgfmathsetlength{\blkio@blk@west@up@span@min}{#1}}}
+\blkio@blk@set{min span west down/.code={\pgfmathsetlength{\blkio@blk@west@down@span@min}{#1}}}
+
+
 \blkio@blk@set{inner sep/.code=\def\blkio@blk@inner@sep{#1}}
 \def\blkio@blk@inner@sep{5pt}
 
@@ -606,6 +622,10 @@
 	\expandafter\newlength\csname blkio@blk@#1@#4@span\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@#5@span\endcsname
 	
+	\expandafter\newlength\csname blkio@blk@#1@#3@span@min\endcsname
+	\expandafter\newlength\csname blkio@blk@#1@#4@span@min\endcsname
+	\expandafter\newlength\csname blkio@blk@#1@#5@span@min\endcsname
+	
 	\expandafter\def\csname blkio@blk@#1@init\endcsname{
 		% Reset blk size
 		\pgfmathsetlength{\csname blkio@blk@#2\endcsname}{0}
@@ -613,9 +633,9 @@
 		\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}{0}
 		\pgfmathsetlength{\csname blkio@blk@#1@depth@min\endcsname}{3pt}
 		% Reset blk side group length
-		\pgfmathsetlength{\csname blkio@blk@#1@#3@depth\endcsname}{0}
-		\pgfmathsetlength{\csname blkio@blk@#1@#4@depth\endcsname}{0}
-		\pgfmathsetlength{\csname blkio@blk@#1@#5@depth\endcsname}{0}
+		\pgfmathsetlength{\csname blkio@blk@#1@#3@span@min\endcsname}{0}
+		\pgfmathsetlength{\csname blkio@blk@#1@#4@span@min\endcsname}{0}
+		\pgfmathsetlength{\csname blkio@blk@#1@#5@span@min\endcsname}{0}
 	}
 	
 	% update span value and depth value before placement
@@ -634,10 +654,10 @@
 			{\csname blkio@io@#1@#5@growth\endcsname + \csname blkio@io@#1@#5@count\endcsname * \blkio@io@space }
 		
 		% Corners
-		\def\@span@A{\csname blkio@blk@#1@#3@span\endcsname}
-		\def\@span@B{\csname blkio@blk@#1@#5@span\endcsname}
+		\pgfmathsetlengthmacro{\@span@A}{max(\csname blkio@blk@#1@#3@span\endcsname,\csname blkio@blk@#1@#3@span@min\endcsname)}
+		\pgfmathsetlengthmacro{\@span@B}{max(\csname blkio@blk@#1@#5@span\endcsname,\csname blkio@blk@#1@#5@span@min\endcsname)}
 		% Middle
-		\def\@span@C{\csname blkio@blk@#1@#4@span\endcsname}
+		\pgfmathsetlengthmacro{\@span@C}{max(\csname blkio@blk@#1@#4@span\endcsname,\csname blkio@blk@#1@#4@span@min\endcsname)}
 			
 		% #3, corner group
 		\pgfmathsetlengthmacro{\@span}{ 2 * ( \@span@A ) + \@span@C }

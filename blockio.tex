@@ -348,6 +348,40 @@
 \end{tikzpicture}
 
 %
+% ---------------- IOPin Block Labels
+%
+\begin{tikzpicture}
+\draw[gray,opacity=0.5,step=10pt] (-1,-1) grid (1,1);
+
+% ------------ GPIO
+
+\tikzset{LKLabel/.style={
+	color=teal
+}}
+
+\blkioset{IOLABEL/.style={/blkio/io/.cd,
+	style={
+		LKLabel,fill=white,
+		append after command={
+			node[anchor=\blklabelinanchor,text=teal,rotate=\blkiopinrotate,font=\fontsize{0.1em}{1pt}\selectfont] at (pinblockedge) {Label}
+			}
+	},
+	out,
+	link style={
+		LKLabel
+	}
+}}
+
+\begin{blockio}[text style={align=center},min size=2cm,name=s,every io space = 4mm,inner sep=10mm]{IOPin\\Block Label}
+	\iopin[east,IOLABEL]{Ele}
+	\iopin[west,IOLABEL,in]{Elw}
+	\iopin[north,IOLABEL]{Eln}
+	\iopin[south,IOLABEL,in]{Els}
+\end{blockio}
+
+\end{tikzpicture}
+
+%
 % IO Pin standalone
 %
 \begin{tikzpicture}

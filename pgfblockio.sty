@@ -44,6 +44,8 @@
 	\fi
 }
 
+%\blkio@debugtrue
+
 \def\blkio@PackageError#1{%
   \PackageError{pgfblockio}{#1}{}%
 }
@@ -100,7 +102,7 @@
 	\edef\pgfpositionnodelatermaxx{\csname#1@node@maxx\endcsname}
 	\edef\pgfpositionnodelatermaxy{\csname#1@node@maxy\endcsname}
 	\setbox\pgfpositionnodelaterbox=\box\csname#1@node@box\endcsname
-	
+
 	\blkio@debug{Node Place '#1' at (#2,#3)}
 	\pgfpositionnodenow{\pgfpoint{#2}{#3}}
 }
@@ -128,14 +130,14 @@
 	\ifx \blkio@name@def\empty
 		\blkio@PackageWarning{'#2' as name}
 		\edef\blkio@name@def{#2}
-	\else	
+	\else
 		\edef\blkio@name@def{\detokenize{#1}}
 		\@in@string{\@backslashchar}{\blkio@name@def}
 		\ifin@
 			\blkio@PackageWarning{'#2' as name vs '\blkio@name@def'}
 			\edef\blkio@name@def{#2}
 		\fi
-		
+
 %		\@in@string{\detokenize{\\}}{\blkio@name@def}
 %		\ifin@
 %			\blkio@PackageWarning{'#2' as name}
@@ -316,7 +318,7 @@
 			\def\blkio@blk@shape@io{#4}
 		}
 	}
-	
+
 	\expandafter\def\csname blkio@blk@shape@#1@place\endcsname{
 		\blkio@debug{Placing Block shape `#1` for `\blkio@blk@name` with `\blkio@shape@style`}
 		\node[every block shape,rounded corners,
@@ -326,7 +328,7 @@
 			minimum height=\blkio@blk@height,
 			#1
 			] (\blkio@blk@name-shape) {};
-	
+
 	}
 }
 
@@ -343,7 +345,7 @@
 
 	% TODO - Fixme, use ellipse tangent if possible, for now point on ellipse from center
 
-	\def\blkio@blk@shape@io@path{(\blkio@blk@name) -- (\blkio@io@place@x,\blkio@io@place@y) 
+	\def\blkio@blk@shape@io@path{(\blkio@blk@name) -- (\blkio@io@place@x,\blkio@io@place@y)
 									-- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
 }
 
@@ -354,31 +356,31 @@
 \def\blkio@blk@shape@io@diamond{
 	\pgfextractx{\pgf@xa}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
 	\pgfextracty{\pgf@ya}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
-	
+
 	\pgfmathparse{Mod(atan2(\blkio@io@place@y-\pgf@ya,\blkio@io@place@x-\pgf@xa),360)}
 	\let\@pt@angle=\pgfmathresult
-	
+
 	\ifdim\@pt@angle pt<180 pt
 		\def\@corner@a{north}
 	\else
 		\def\@corner@a{south}
 	\fi
-	
+
 	\pgfmathparse{abs(\@pt@angle-180)}
 	\ifdim\pgfmathresult pt<90 pt
 		\def\@corner@b{west}
 	\else
 		\def\@corner@b{east}
 	\fi
-	
-	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.\@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.\@corner@b)$) 
+
+	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.\@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.\@corner@b)$)
 				-- (\blkio@io@place@x,\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
 }
 
 \def\blkio@blk@shape@circle@ratio{
 	\pgfmathdivide@{\blkio@blk@width}{\blkio@blk@height}
 	\let\@block@ratio\pgfmathresult
-	
+
 	\ifdim\@block@ratio pt < 1 pt
 		\pgfmathsetlength{\global\blkio@blk@width}{\blkio@blk@height}
 	\else
@@ -430,7 +432,7 @@
 	\pgfmathmultiply@{\blkio@blk@width}{\pgfmathresult}
 	\pgfmathdivide@{\pgfmathresult}{2}
 	\let\@rp@radius\pgfmathresult
-	
+
 	\pgfmathmultiply@{\@rp@radius}{#1}
 	\blkio@blk@set@min@width{\pgfmathresult}
 	\pgfmathmultiply@{\@rp@radius}{#2}
@@ -444,10 +446,10 @@
 \def\blkio@blk@size@shape@ratio@rp#1#2{
 	\pgfmathdivide@{#1}{#2}
 	\let\@rp@ratio\pgfmathresult
-	
+
 	\pgfmathdivide@{\blkio@blk@width}{\blkio@blk@height}
 	\let\@block@ratio\pgfmathresult
-	
+
 	\ifdim\@block@ratio pt < \@rp@ratio pt
 		\pgfmathsetlength{\global\blkio@blk@width}{\@rp@ratio*\blkio@blk@height}
 	\else
@@ -478,12 +480,12 @@
 \def\blkio@blk@shape@io@rp#1#2{
 	\pgfextractx{\pgf@xa}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
 	\pgfextracty{\pgf@ya}{\pgfpointanchor{\blkio@blk@name-shape}{center}}
-	
+
 	\pgfmathparse{Mod(atan2(\blkio@io@place@y-\pgf@ya,\blkio@io@place@x-\pgf@xa),360)}
 	\let\@pt@angle@abs=\pgfmathresult
 	\pgfmathparse{Mod(\@pt@angle@abs+#2,360)}
 	\let\@pt@angle=\pgfmathresult
-	
+
 	\pgfmathdivide@{360}{#1}
 	\let\@pr@angle=\pgfmathresult
 	\pgfmathdivide@{\@pt@angle}{\@pr@angle}
@@ -494,8 +496,8 @@
 	\pgfmathparse{max(Mod(\@corner@a+1,#1+1),1)}
 	\pgfmathint{\pgfmathresult}
 	\let\@corner@b=\pgfmathresult
-	
-	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.corner \@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.corner \@corner@b)$) 
+
+	\def\blkio@blk@shape@io@path{($(\blkio@blk@name-shape.corner \@corner@a)!(\blkio@io@place@x,\blkio@io@place@y)!(\blkio@blk@name-shape.corner \@corner@b)$)
 				-- (\the\blkio@io@place@x,\the\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
 }
 
@@ -582,7 +584,7 @@
 
 \def\blkio@blk@init{
 	\def\blkio@blk@at{\pgfqpoint{0pt}{0pt}}
-	
+
 	\blkio@blk@north@init
 	\blkio@blk@east@init
 	\blkio@blk@west@init
@@ -591,7 +593,7 @@
 
 \def\blkio@blk@node@save{
 	\def\@blk@prefix{blkio@blk@text}
-	
+
 	\global\expandafter\edef\csname\@blk@prefix @node@name\endcsname{\pgfpositionnodelatername}
 	\global\expandafter\edef\csname\@blk@prefix @node@minx\endcsname{\pgfpositionnodelaterminx}
 	\global\expandafter\edef\csname\@blk@prefix @node@miny\endcsname{\pgfpositionnodelaterminy}
@@ -599,7 +601,7 @@
 	\global\expandafter\edef\csname\@blk@prefix @node@maxy\endcsname{\pgfpositionnodelatermaxy}
 	\expandafter\newbox\csname\@blk@prefix @node@box\endcsname
 	\global\setbox\csname\@blk@prefix @node@box\endcsname=\box\pgfpositionnodelaterbox
-	
+
 	% calc block text size
 	\blkio@node@calc@dim{\@blk@prefix}
 	% affect block size
@@ -609,23 +611,23 @@
 	\ifdim\blkio@blk@height<\blkio@node@dim@y\relax
 		\pgfmathsetlength{\global\blkio@blk@height}{\blkio@node@dim@y}
 	\fi
-	
+
 	\blkio@debug{Block Text Size `\the\blkio@blk@width` `\the\blkio@blk@height`}
 }
 
 \def\blkio@blk@side@define#1#2#3#4#5{
-	\expandafter\newcount\csname blkio@blk@#1@count\endcsname	
+	\expandafter\newcount\csname blkio@blk@#1@count\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@depth\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@depth@min\endcsname
 	% side group span
 	\expandafter\newlength\csname blkio@blk@#1@#3@span\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@#4@span\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@#5@span\endcsname
-	
+
 	\expandafter\newlength\csname blkio@blk@#1@#3@span@min\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@#4@span@min\endcsname
 	\expandafter\newlength\csname blkio@blk@#1@#5@span@min\endcsname
-	
+
 	\expandafter\def\csname blkio@blk@#1@init\endcsname{
 		% Reset blk size
 		\pgfmathsetlength{\csname blkio@blk@#2\endcsname}{0}
@@ -637,7 +639,7 @@
 		\pgfmathsetlength{\csname blkio@blk@#1@#4@span@min\endcsname}{0}
 		\pgfmathsetlength{\csname blkio@blk@#1@#5@span@min\endcsname}{0}
 	}
-	
+
 	% update span value and depth value before placement
 	\expandafter\def\csname blkio@blk@#1@side@calc\endcsname{
 
@@ -648,17 +650,17 @@
 		% #4 span of the middle
 		\pgfmathsetlength{\csname blkio@blk@#1@#4@span\endcsname}
 			{\csname blkio@io@#1@#4@growth\endcsname + \csname blkio@io@#1@#4@count\endcsname * \blkio@io@space }
-		
+
 		% #5, corner group
 		\pgfmathsetlength{\csname blkio@blk@#1@#5@span\endcsname}
 			{\csname blkio@io@#1@#5@growth\endcsname + \csname blkio@io@#1@#5@count\endcsname * \blkio@io@space }
-		
+
 		% Corners
 		\pgfmathsetlengthmacro{\@span@A}{max(\csname blkio@blk@#1@#3@span\endcsname,\csname blkio@blk@#1@#3@span@min\endcsname)}
 		\pgfmathsetlengthmacro{\@span@B}{max(\csname blkio@blk@#1@#5@span\endcsname,\csname blkio@blk@#1@#5@span@min\endcsname)}
 		% Middle
 		\pgfmathsetlengthmacro{\@span@C}{max(\csname blkio@blk@#1@#4@span\endcsname,\csname blkio@blk@#1@#4@span@min\endcsname)}
-			
+
 		% #3, corner group
 		\pgfmathsetlengthmacro{\@span}{ 2 * ( \@span@A ) + \@span@C }
 
@@ -670,21 +672,21 @@
 		\pgfmathsetlength{\csname blkio@blk@#2\endcsname}{max(\csname blkio@blk@#2\endcsname , \@span)}
 
 		\blkio@debug{#1 #2 = \the\csname blkio@blk@#2\endcsname}
-		
+
 		% TODO Update span if spread is enabled
-		
+
 		% Updating depth
-		
+
 		\csname blkio@blk@#1@count\endcsname=0\relax
 		\expandafter\advance\csname blkio@blk@#1@count\endcsname by \csname blkio@io@#1@#3@count\endcsname\relax
 		\expandafter\advance\csname blkio@blk@#1@count\endcsname by \csname blkio@io@#1@#4@count\endcsname\relax
 		\expandafter\advance\csname blkio@blk@#1@count\endcsname by \csname blkio@io@#1@#5@count\endcsname\relax
-		
+
 		\ifnum\csname blkio@blk@#1@count\endcsname>0
 			\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}
 				{\csname blkio@blk@#1@depth\endcsname + \blkio@blk@in@sep + \blkio@blk@out@sep }
 		\fi
-		
+
 		\pgfmathsetlength{\csname blkio@blk@#1@depth\endcsname}
 			{max(\csname blkio@blk@#1@depth\endcsname , \csname blkio@blk@#1@depth@min\endcsname)}
 
@@ -723,16 +725,16 @@
 	\blkio@io@south@left@init
 	\blkio@io@south@center@init
 	\blkio@io@south@right@init
-	
+
 	\let\blkio@blk@text@style=\empty
-	
+
 	\blkio@blk@set{#1}
-		
+
 	\@ifundefined{blkio@blk@name}{
 		\blkio@name@check{#2}{blk\the\blkio@blk@count}
 		\edef\blkio@blk@name{\blkio@name@def}
 	}{}
-	
+
 	{
 		\pgfpositionnodelater{\blkio@blk@node@save}
 		\node[every block text,
@@ -743,42 +745,42 @@
 	\blkioenvtrue
 }{
 	\blkio@debug{--- endblkio}
-	
+
 	% Scale block size based on shape
 	\blkio@blk@size@scale@shape
-	
+
 	% block size increase base on iopins
 	\blkio@blk@north@side@calc
 	\blkio@blk@east@side@calc
 	\blkio@blk@west@side@calc
 	\blkio@blk@south@side@calc
-	
+
 	% Add inner spacing
 	\pgfmathsetlength{\blkio@blk@width}{\blkio@blk@width+2*\blkio@blk@inner@sep}
 	\pgfmathsetlength{\blkio@blk@height}{\blkio@blk@height+2*\blkio@blk@inner@sep}
-	
+
 	% block size update to shape ratio, may do nothing
 	\blkio@blk@size@shape@ratio
-	
+
 	\pgfextractx{\pgf@xc}{\blkio@blk@at}
 	\pgfextracty{\pgf@yc}{\blkio@blk@at}
-	
+
 	\def\blkioname{\blkio@blk@name}
 
-	\node[	every block,
+	\node[	every block, alias=blkiolast,
 			anchor=\blk@blk@anchor,
 			at={(\pgf@xc,\pgf@yc)},
 			blkio@style/.expand once=\blkio@blk@positioning,
 			blkio@style/.expand once=\blkio@blk@style,
 			ioblock]
 		 (\blkioname) {};
-	
+
 	\blkio@blk@shape@place
-	
+
 	\pgfextractx{\blkio@io@place@x}{\pgfpointanchor{\blkio@blk@name-shape}{\blk@blk@text@anchor}}
 	\pgfextracty{\blkio@io@place@y}{\pgfpointanchor{\blkio@blk@name-shape}{\blk@blk@text@anchor}}
 	\blkio@node@place{blkio@blk@text}{\blkio@io@place@x}{\blkio@io@place@y}
-	
+
 	\blkio@io@north@left@place
 	\blkio@io@north@center@place
 	\blkio@io@north@right@place
@@ -791,7 +793,7 @@
 	\blkio@io@south@left@place
 	\blkio@io@south@center@place
 	\blkio@io@south@right@place
-	
+
 	\blkioenvfalse
 }
 
@@ -901,7 +903,7 @@
 
 	\expandafter\newcount\csname blkio@io@#1@#2@count\endcsname
 	\expandafter\newlength\csname blkio@io@#1@#2@growth\endcsname
-	
+
 	% Side Group Key
 	\blkio@io@set{#1 #2/.code={
 		\ifblkioenv
@@ -916,12 +918,12 @@
 	\expandafter\def\csname blkio@io@#1@#2@init\endcsname{
 		\csname blkio@io@#1@#2@count\endcsname=0\relax
 		\pgfmathsetlength{\csname blkio@io@#1@#2@growth\endcsname}{0}
-	}	
-	
+	}
+
 	% Side Group Node Save
 	\expandafter\def\csname blkio@io@#1@#2@node@save\endcsname{
 		\blkio@debug{Node #1 #2 (\number\csname blkio@io@#1@#2@count\endcsname) save  '\pgfpositionnodelatername'}
-		
+
 		\global\expandafter\edef\csname\@io@pin@prefix @node@name\endcsname{\pgfpositionnodelatername}
 		\global\expandafter\edef\csname\@io@pin@prefix @node@minx\endcsname{\pgfpositionnodelaterminx}
 		\global\expandafter\edef\csname\@io@pin@prefix @node@miny\endcsname{\pgfpositionnodelaterminy}
@@ -929,7 +931,7 @@
 		\global\expandafter\edef\csname\@io@pin@prefix @node@maxy\endcsname{\pgfpositionnodelatermaxy}
 		\expandafter\newbox\csname\@io@pin@prefix @node@box\endcsname
 		\global\setbox\csname\@io@pin@prefix @node@box\endcsname=\box\pgfpositionnodelaterbox
-		
+
 		% calc node size
 		\blkio@node@calc@dim{\@io@pin@prefix}
 		% affect node size
@@ -937,29 +939,29 @@
 		\ifdim\csname blkio@blk@#1@depth\endcsname<#4\relax
 			\pgfmathsetlength{\global\csname blkio@blk@#1@depth\endcsname}{#4}
 		\fi
-		
+
 		\blkio@debug{Growth #1 #2 = \expandafter\the\csname blkio@io@#1@#2@growth\endcsname}
 		\blkio@debug{Depth #1 = \expandafter\the\csname blkio@blk@#1@depth\endcsname}
 	}
-	
+
 	% Add IO Pin
 	\expandafter\def\csname blkio@io@#1@#2@add\endcsname##1{
 		\blkio@debug{Add #1 #2 IO Pin '##1'}
-		
+
 		\expandafter\advance\csname blkio@io@#1@#2@count\endcsname by 1\relax
-		
+
 		\@ifundefined{blkio@iopin@name}{
 			\blkio@name@check{##1}{\blkio@blk@name-#1#2\the\csname blkio@io@#1@#2@count\endcsname}
 		}{
 			\let\blkio@name@def=\blkio@iopin@name
 		}
 		\let\blkio@iopin@name=\blkio@name@def
-		
-		\def\@io@pin@prefix{blkio@io@#1@#2@io-\number\csname blkio@io@#1@#2@count\endcsname}	
+
+		\def\@io@pin@prefix{blkio@io@#1@#2@io-\number\csname blkio@io@#1@#2@count\endcsname}
 		\expandafter\edef\csname\@io@pin@prefix @name\endcsname{\blkio@name@def}
 		\expandafter\let\csname\@io@pin@prefix @style\endcsname=\blkio@io@pin@style
 		\expandafter\let\csname\@io@pin@prefix @link@style\endcsname=\blkio@io@link@style
-		
+
 		\ifblkio@io@dir@input
 			\expandafter\def\csname\@io@pin@prefix @dir\endcsname{\blkio@io@dir@inputtrue}
 			\edef\@io@text@param{\blkio@get@param{#1}{text}{in}}
@@ -969,27 +971,27 @@
 			\edef\@io@text@param{\blkio@get@param{#1}{text}{out}}
 			\edef\@io@pin@param{\blkio@get@param{#1}{pin}{out}}
 		\fi
-		
+
 		\blkio@param@value{text}\@io@text@param
-		
+
 		{
 			\def\blkio@pos@node@later{\csname blkio@io@#1@#2@node@save\endcsname}
 			\pgfpositionnodelater{\blkio@pos@node@later}
-			
+
 			\node[every iopin text,
 					rotate=\blkiotextrotate,
 					anchor=\blkiotextanchor,
-					blkio@style/.expand once=\blkio@io@text@style] 
+					blkio@style/.expand once=\blkio@io@text@style]
 					(\blkio@name@def-text) {##1};
 		}
 	}
-	
+
 	% Placement
 	\expandafter\def\csname blkio@io@#1@#2@place\endcsname{
 		\blkio@debug{Placing #1 #2 IO Pins (\the\csname blkio@io@#1@#2@count\endcsname)}
 		\ifnum\csname blkio@io@#1@#2@count\endcsname>0
-			\csname blkio@io@#1@#2@coord@start\endcsname		
-			
+			\csname blkio@io@#1@#2@coord@start\endcsname
+
 			% placing nodes
 			\foreach \i in {1,...,\number\csname blkio@io@#1@#2@count\endcsname}
 			{
@@ -997,9 +999,9 @@
 					\edef\@io@pin@name{\csname\@io@pin@prefix @name\endcsname}
 					\expandafter\let\expandafter\@io@pin@style\csname\@io@pin@prefix @style\endcsname
 					\expandafter\let\expandafter\@io@link@style\csname\@io@pin@prefix @link@style\endcsname
-					
+
 					\csname\@io@pin@prefix @dir\endcsname
-					
+
 					\ifblkio@io@dir@input
 						\edef\@io@text@param{\blkio@get@param{#1}{text}{in}}
 						\edef\@io@pin@param{\blkio@get@param{#1}{pin}{in}}
@@ -1013,7 +1015,7 @@
 						\edef\@io@text@depth@shift{ \blkio@blk@out@sep + \blkio@blk@outer@sep }
 						\def\@io@pin@anchor{in}
 					\fi
-					
+
 					\blkio@param@value{text}\@io@text@param
 					\blkio@param@value{pin}\@io@pin@param
 					\def\blkiopinname{\@io@pin@name}
@@ -1025,18 +1027,24 @@
 					\blkio@node@place{\@io@pin@prefix}{\blkio@io@place@shift@x}{\blkio@io@place@shift@y}
 					% growth by the node size
 					\csname blkio@io@#1@#2@coord@growth\endcsname{#3}
-					
+
 					% growth by half the io pin space
 					\csname blkio@io@#1@#2@coord@growth\endcsname{\blkio@io@space/2}
 					\csname blkio@io@#1@depth@shift\endcsname{\blkio@blk@outer@sep}
-					
+
 					\def\blkio@blk@shape@io@path{(\blkio@io@place@x,\blkio@io@place@y) -- (\blkio@io@place@shift@x,\blkio@io@place@shift@y)}
 					\blkio@blk@shape@io
-					
+
 					% IO Link
-					\draw[every link,blkio@style/.expand once=\@io@link@style] 
+					\draw[every link,blkio@style/.expand once=\@io@link@style]
 							\blkio@blk@shape@io@path ;
-							
+
+					\blkio@debug{Block Edge Label @ \the\blkio@io@place@x,\the\blkio@io@place@y - in anchor : \csname blkio@blocklabel@#1@in\endcsname out anchor : \csname blkio@blocklabel@#1@out\endcsname }
+
+					\edef\blklabelinanchor{\csname blkio@blocklabel@#1@in\endcsname}
+					\edef\blklabeloutanchor{\csname blkio@blocklabel@#1@out\endcsname}
+					\coordinate (pinblockedge) at (\blkio@io@place@x,\blkio@io@place@y);
+
 					% IO Pin
 					\draw	node[every iopin,
 									rotate=\blkiopinrotate,
@@ -1046,7 +1054,7 @@
 									minimum height=\blkio@io@space]
 									at (\blkio@io@place@shift@x,\blkio@io@place@shift@y)
 									(\blkiopinname) {};
-					
+
 					% growth by half the io pin space
 					\csname blkio@io@#1@#2@coord@growth\endcsname{\blkio@io@space/2}
 			}
@@ -1121,6 +1129,19 @@
 \blkio@io@depth@shift@define{east}{+\@shift@var}{}
 \blkio@io@depth@shift@define{west}{-\@shift@var}{}
 
+% block label param
+
+% side - block label in - block label out
+\def\blkio@blocklabel@param@define#1#2#3{
+	\expandafter\def\csname blkio@blocklabel@#1@in\endcsname{#2}
+	\expandafter\def\csname blkio@blocklabel@#1@out\endcsname{#3}
+}
+
+\blkio@blocklabel@param@define{north}{east}{south west}
+\blkio@blocklabel@param@define{south}{west}{south east}
+\blkio@blocklabel@param@define{east}{east}{south west}
+\blkio@blocklabel@param@define{west}{west}{south east}
+
 % in / out param
 
 % side - TEXT - in r/a - out r/a - PIN - in r/a - out r/a
@@ -1187,18 +1208,18 @@
 % #4 depth from node dim
 %
 \def\iopin@io@define#1#2#3#4{
-	
+
 	% Side Group Key
 	\blkio@io@set{#1/.code={
 			\csname blkio@io@#2@orientation\endcsname
 			\def\blkio@create@iopin{\csname iopin@#1@create\endcsname}
 		}
 	}
-	
+
 	% Node Save
 	\expandafter\def\csname iopin@#1@node@save\endcsname{
 		\blkio@debug{Node #1 '\pgfpositionnodelatername'}
-		
+
 		\global\expandafter\edef\csname\@io@pin@prefix @node@name\endcsname{\pgfpositionnodelatername}
 		\global\expandafter\edef\csname\@io@pin@prefix @node@minx\endcsname{\pgfpositionnodelaterminx}
 		\global\expandafter\edef\csname\@io@pin@prefix @node@miny\endcsname{\pgfpositionnodelaterminy}
@@ -1207,22 +1228,22 @@
 		\expandafter\newbox\csname\@io@pin@prefix @node@box\endcsname
 		\global\setbox\csname\@io@pin@prefix @node@box\endcsname=\box\pgfpositionnodelaterbox
 	}
-	
+
 	% create IO Pin
 	\expandafter\def\csname iopin@#1@create\endcsname##1{
 		\blkio@debug{Create #1 IO Pin '##1'}
-		
+
 		\advance\iopin@count by 1
-		
+
 		\@ifundefined{blkio@iopin@name}{
 			\blkio@name@check{##1}{iopin\the\iopin@count}
 		}{
 			\let\blkio@name@def=\blkio@iopin@name
 		}
 		\let\blkio@iopin@name=\blkio@name@def
-		
+
 		\def\@io@pin@prefix{iopin@#1@io-\number\iopin@count}
-		
+
 		\ifblkio@io@dir@input
 			\expandafter\def\csname\@io@pin@prefix @dir\endcsname{\blkio@io@dir@inputtrue}
 			\edef\@io@text@param{\blkio@get@param{#2}{text}{in}}
@@ -1232,25 +1253,25 @@
 			\edef\@io@text@param{\blkio@get@param{#2}{text}{out}}
 			\edef\@io@pin@param{\blkio@get@param{#2}{pin}{out}}
 		\fi
-		
+
 		\blkio@param@value{text}\@io@text@param
 		\blkio@param@value{pin}\@io@pin@param
-		
+
 		{
 			\def\blkio@pos@node@later{\csname iopin@#1@node@save\endcsname}
 			\pgfpositionnodelater{\blkio@pos@node@later}
-			
+
 			\node[every iopin text,
 					rotate=\blkiotextrotate,
 					anchor=\blkiotextanchor,
 					blkio@style/.expand once=\blkio@io@text@style] (\blkio@name@def-text) {##1};
 		}
-		
+
 		% calc node size
 		\blkio@node@calc@dim{\@io@pin@prefix}
-		
+
 		\pgfmathsetlengthmacro\iopin@depth{\blkio@blk@in@sep + #4 + \blkio@blk@out@sep}
-		
+
 		% TODO use iopin in/out sep param
 		\ifblkio@io@dir@input
 			\edef\@io@text@depth@shift{ (\iopin@depth - \blkio@blk@in@sep) }
@@ -1259,13 +1280,13 @@
 			\edef\@io@text@depth@shift{ \blkio@blk@out@sep }
 			\blkio@keydef{symbol distance}{\blkio@blk@out@sep}
 		\fi
-		
+
 		\iopin@growth@init{#3}{#2}
 		\csname blkio@io@#2@center@coord@growth\endcsname{\iopin@growth@shift}
-		
+
 		\def\iopinname{\blkio@name@def}
 		\blkio@debug{Placing '\blkio@name@def' @( \the\blkio@io@place@x , \the\blkio@io@place@y )}
-		
+
 		% IO Text
 		\csname blkio@io@#2@depth@shift\endcsname{\@io@text@depth@shift}
 		\blkio@node@place{\@io@pin@prefix}{\blkio@io@place@shift@x}{\blkio@io@place@shift@y}
@@ -1295,9 +1316,9 @@
 \def\blkio@create@iopin{\blkio@io@add}
 
 \def\blkio@io@add#1{
-	
+
 }
-	
+
 \newcommand{\iopin}[2][]{
 	\blkio@debug{IO Pin '#1' '#2'}
 	\let\blkio@io@text@style=\empty
@@ -1519,13 +1540,13 @@
 	\lkio@sym@test{.|}{\edef\lkio@from@sym{|}}{}
 	\lkio@sym@test{.-}{\edef\lkio@from@sym{-}}{}
 	\lkio@sym@test{-.}{\edef\lkio@to@sym{-}}{}
-	
+
 	\iflkio@orientation@horz
 		\lkio@sym@test{..}{\edef\lkio@to@sym{-}}{}
 	\else
 		\lkio@sym@test{..}{\edef\lkio@to@sym{|}}{}
 	\fi
-	
+
 	\lkio@proc@by
 }
 
@@ -1539,10 +1560,10 @@
 		\tikzset{.search also={/link io}}
 		% Process option that are needed before
 		\tikzset{#1}
-		
+
 		\lkio@process@from{#2}
 		\lkio@process@to{#3}
-		
+
 		% select a default orientation
 		\edef\lkio@sym{\lkio@from@sym\lkio@to@sym}
 		\lkio@sym@test{-.}{\lkio@orientation@horztrue}
@@ -1558,12 +1579,12 @@
 				}
 			}
 		}
-		
+
 		\@ifundefined{lkio@mid@sym}
 		{
 			\coordinate (lkio@mid) at ($(\lkio@link@from)!0.5!(\lkio@link@to)$);
 			\def\lkio@link@mid{lkio@mid}
-			
+
 			\edef\lkio@sym{\lkio@from@sym\lkio@to@sym}
 			\lkio@sym@test{--}{
 				\def\lkio@mid@sym{.}
@@ -1574,7 +1595,7 @@
 				\def\lkio@proc@mult{\lkio@proc@by}
 			}{}
 		}
-		
+
 		\@ifundefined{lkio@mid@sym}
 		{
 			\lkio@proc@fromto
@@ -1584,7 +1605,7 @@
 			\lkio@proc@mult
 			\draw[every link,#1] \lkio@mid@path;
 		}
-		
+
 	}
 }
 
@@ -1597,60 +1618,60 @@
 	\savedmacro\blk@in@width{
         \pgfmathsetlengthmacro{\blk@in@width}{\blkio@blk@width}
 	}
-	
+
 	\savedmacro\blk@out@w{
         \pgfmathsetlengthmacro{\blk@out@w}{ -0.5*\blk@in@width - \blkio@blk@west@depth - \blkio@blk@outer@sep }
 	}
-	
+
 	\savedmacro\blk@out@e{
         \pgfmathsetlengthmacro{\blk@out@e}{ 0.5*\blk@in@width + \blkio@blk@east@depth + \blkio@blk@outer@sep }
 	}
-	
+
 	\savedmacro\blk@in@height{
         \pgfmathsetlengthmacro{\blk@in@height}{\blkio@blk@height}
 	}
-	
+
 	\savedmacro\blk@out@n{
         \pgfmathsetlengthmacro{\blk@out@n}{ 0.5*\blk@in@height + \blkio@blk@north@depth + \blkio@blk@outer@sep }
 	}
-	
+
 	\savedmacro\blk@out@s{
         \pgfmathsetlengthmacro{\blk@out@s}{ -0.5*\blk@in@height - \blkio@blk@south@depth - \blkio@blk@outer@sep }
 	}
-	
+
 	\savedmacro\blk@name{
 		\edef\blk@name{\blkio@blk@name}
 	}
-	
+
 	\anchor{center}{
 		\pgfqpoint{0pt}{0pt}
 	}
-	
+
 	\anchor{block center}{
 		\pgfqpoint{0pt}{0pt}
 	}
-	
+
 	\anchor{north}{
 		\pgfqpoint{0pt}{\blk@out@n}
 	}
 	\anchor{north west}{
 		\pgfqpoint{\blk@out@w}{\blk@out@n}
 	}
-	
+
 	\anchor{west}{
 		\pgfqpoint{\blk@out@w}{0pt}
 	}
 	\anchor{north east}{
 		\pgfqpoint{\blk@out@e}{\blk@out@n}
 	}
-	
+
 	\anchor{south}{
 		\pgfqpoint{0pt}{\blk@out@s}
 	}
 	\anchor{south west}{
 		\pgfqpoint{\blk@out@w}{\blk@out@s}
 	}
-	
+
 	\anchor{east}{
 		\pgfqpoint{\blk@out@e}{0pt}
 	}
@@ -1731,7 +1752,7 @@
 			\advance\c@pgf@counta-1\relax%
         \repeatpgfmathloop%
     }%
-	
+
 	\anchor{block north}{
 		\pgfpoint{0pt}{0.5*\blk@in@height}
 	}
@@ -1756,7 +1777,7 @@
 	\anchor{block south east}{
 		\pgfpoint{0.5*\blk@in@width}{-0.5*\blk@in@height}
 	}
-	
+
 	% Border is from the shape node
 	\anchorborder{%
 		%
@@ -1773,10 +1794,10 @@
         \advance\pgf@x-\centerx
         \advance\pgf@y-\centery
 	}%
-	
+
 	\backgroundpath{
 		\pgfpathrectanglecorners{\pgfpoint{-0.5*\blk@in@width}{0.5*\blk@in@height}}{\pgfpoint{0.5*\blk@in@width}{-0.5*\blk@in@height}}
-		
+
 		\pgfpathrectanglecorners{\pgfpoint{\blk@out@w}{\blk@out@n}}{\pgfpoint{\blk@out@e}{\blk@out@s}}
 	}
 }
@@ -1806,7 +1827,7 @@
 			\pgf@x=-0.5\pgf@x%
         }%
 	}
-	
+
 	\savedanchor\in{
 		\iopin@in
 	}
@@ -1819,16 +1840,16 @@
 		\advance\pgf@x by \blkiovalueof{symbol distance}
 		\advance\pgf@x by \iopin@height
 	}
-	
+
 	\savedanchor\symbol{
 		\iopin@in
 		\pgfmathsetlength\pgf@x{\pgf@x + 0.5*\iopin@height + \blkiovalueof{symbol distance}}
-	}	
-	
+	}
+
 	\anchor{symbol}{
 		\symbol
-	}%		
-	
+	}%
+
 	\anchor{in}{
 		\in
 	}%
@@ -1843,7 +1864,7 @@
 	}%
 
 	\backgroundpath{
-		\pgfpathmoveto{\in}		
+		\pgfpathmoveto{\in}
 		\pgfpathlineto{\insymbol}
 		\pgfpathmoveto{\outsymbol}
 		\pgfpathlineto{\pgfpointscale{-1}{\in}}
@@ -1851,7 +1872,7 @@
 
 	\foregroundpath{
 		\pgfpathmoveto{\insymbol}
-		\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpointpolar{110}{0.4*\iopin@height}}}		
+		\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpointpolar{110}{0.4*\iopin@height}}}
 		\pgfpathlineto{\outsymbol}
 		\pgfpathlineto{\pgfpointadd{\insymbol}{\pgfpointpolar{-110}{0.4*\iopin@height}}}
 		\pgfpathclose
@@ -1875,22 +1896,22 @@
 		\pgfmathsetlengthmacro{\out}{0.8*\iopin@height}
 		\advance\pgf@x by \out
 	}
-	
+
 	\savedanchor\outsymbol{
 		\iopin@in
 		\advance\pgf@x by \blkiovalueof{symbol distance}
 		\pgfmathsetlengthmacro{\out}{1.6*\iopin@height}
 		\advance\pgf@x by \out
 	}
-	
+
 	\anchor{symbol}{
 		\symbol
-	}%	
-	
+	}%
+
 	\anchor{outsymbol}{
 		\outsymbol
 	}%
-	
+
 	\backgroundpath{
 			\pgfpathmoveto{\in}
 			\pgfpathlineto{\insymbol}
@@ -1912,9 +1933,9 @@
 	\inheritanchor[from=iopin]{in}
 	\inheritanchor[from=iopin]{out}
 	\inheritanchor[from=iopin]{symbol}
-	
+
 	\backgroundpath{
-		\pgfpathmoveto{\in}		
+		\pgfpathmoveto{\in}
 		\pgfpathlineto{\pgfpointscale{-1}{\in}}
 	}
 }
@@ -1937,7 +1958,7 @@
 									inner sep=1pt,
 									outer sep=0mm,
 									minimum size=2.6mm,
-									rotate=\blkiopinrotate] 
+									rotate=\blkiopinrotate]
 									at (\tikzlastnode.symbol) {} }
 		},
 	link style={LKEvent}
@@ -2004,7 +2025,7 @@
 									outer sep=0mm,
 									minimum height=1.6mm,
 									minimum width=4mm,
-									rotate=\blkiopinrotate] 
+									rotate=\blkiopinrotate]
 									at (\tikzlastnode.symbol) {} }
 		},
 	link style={LKProto}
